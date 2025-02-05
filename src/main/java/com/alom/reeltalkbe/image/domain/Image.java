@@ -1,14 +1,13 @@
 package com.alom.reeltalkbe.image.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
-@Setter
-@RequiredArgsConstructor
 public class Image {
 
     @Id

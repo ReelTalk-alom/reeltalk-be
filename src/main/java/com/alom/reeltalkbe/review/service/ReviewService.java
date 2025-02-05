@@ -1,6 +1,10 @@
 package com.alom.reeltalkbe.review.service;
 
 import com.alom.reeltalkbe.common.response.BaseResponseStatus;
+import com.alom.reeltalkbe.content.domain.Content;
+import com.alom.reeltalkbe.content.repository.ContentRepository;
+import com.alom.reeltalkbe.image.domain.Image;
+import com.alom.reeltalkbe.image.repository.ImageRepository;
 import com.alom.reeltalkbe.review.domain.Review;
 import com.alom.reeltalkbe.review.dto.*;
 import com.alom.reeltalkbe.review.dto.request.ReviewUpdateRequestDto;
@@ -8,6 +12,8 @@ import com.alom.reeltalkbe.review.dto.response.ReviewListResponseDto;
 import com.alom.reeltalkbe.review.dto.response.ReviewRegisterRequestDto;
 import com.alom.reeltalkbe.review.dto.response.ReviewResponseDto;
 import com.alom.reeltalkbe.review.repository.ReviewRepository;
+import com.alom.reeltalkbe.user.domain.User;
+import com.alom.reeltalkbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,6 +93,7 @@ public class ReviewService {
                 review.getId(),
                 review.getContent().getId(),
                 review.getImage() != null ? review.getImage().getId() : null,
+                review.getUser().getUserId(),
                 review.getUrl(),
                 review.getDescription(),
                 review.getRating()
@@ -109,12 +116,10 @@ public class ReviewService {
                 review.getId(),
                 review.getContent().getId(),
                 review.getImage() != null ? review.getImage().getId() : null,
-                review.getUser().getId(),
+                review.getUser().getUserId(),
                 review.getUrl(),
                 review.getDescription(),
-                review.getRating(),
-                review.getCreatedAt(),
-                review.getUpdatedAt()
+                review.getRating()
         );
     }
 
@@ -122,7 +127,7 @@ public class ReviewService {
         return new ReviewSummaryDto(
                 review.getId(),
                 review.getContent().getId(),
-                review.getUser().getId(),
+                review.getUser().getUserId(),
                 review.getImage() != null ? review.getImage().getId() : null,
                 review.getRating(),
                 review.getCreatedAt().toString(),

@@ -7,6 +7,10 @@ import com.alom.reeltalkbe.comment.entity.Comment;
 import com.alom.reeltalkbe.comment.repository.CommentRepository;
 import com.alom.reeltalkbe.common.exception.BaseException;
 import com.alom.reeltalkbe.common.response.BaseResponseStatus;
+import com.alom.reeltalkbe.review.domain.Review;
+import com.alom.reeltalkbe.review.repository.ReviewRepository;
+import com.alom.reeltalkbe.user.domain.User;
+import com.alom.reeltalkbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +22,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CommentService {
 
-    private UserRepsoitory userRepsoitory;
+    private UserRepository userRepsoitory;
 
     private ReviewRepository reviewRepository;
 
@@ -64,7 +68,7 @@ public class CommentService {
         User user = userRepsoitory.findById(userId)
                 .orElseThrow(() -> new  BaseException(BaseResponseStatus.NON_EXIST_USER));
 
-        if (comment.getUser().getId().equals(user.getId)) {
+        if (comment.getUser().getUserId().equals(user.getUserId())) {
             throw new BaseException(BaseResponseStatus.INVALID_MEMBER);
         }
 
@@ -80,7 +84,7 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                         .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_COMMENT));
 
-        if (comment.getUser().getId().equals(user.getId)) {
+        if (comment.getUser().getUserId().equals(user.getUserId())) {
             throw new BaseException(BaseResponseStatus.INVALID_MEMBER);
         }
         commentRepository.deleteById(commentId);

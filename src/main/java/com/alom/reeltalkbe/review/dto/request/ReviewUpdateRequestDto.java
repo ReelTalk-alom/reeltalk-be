@@ -1,4 +1,4 @@
-정package com.alom.reeltalkbe.review.dto.request;
+package com.alom.reeltalkbe.review.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

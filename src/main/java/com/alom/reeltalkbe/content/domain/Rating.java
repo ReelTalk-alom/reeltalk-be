@@ -1,6 +1,7 @@
 package com.alom.reeltalkbe.content.domain;
 
 import com.alom.reeltalkbe.common.BaseEntity;
+import com.alom.reeltalkbe.user.domain.User;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,11 +18,11 @@ public class Rating extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /*
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-    */
+    
 
     @ManyToOne
     @JoinColumn(name = "content_id")

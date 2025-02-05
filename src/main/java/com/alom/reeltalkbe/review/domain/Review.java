@@ -1,11 +1,17 @@
 package com.alom.reeltalkbe.review.domain;
 
+import com.alom.reeltalkbe.comment.entity.Comment;
 import com.alom.reeltalkbe.common.BaseEntity;
+import com.alom.reeltalkbe.content.domain.Content;
+import com.alom.reeltalkbe.image.domain.Image;
+import com.alom.reeltalkbe.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Getter
