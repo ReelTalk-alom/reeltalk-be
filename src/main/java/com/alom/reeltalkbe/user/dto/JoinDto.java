@@ -1,4 +1,4 @@
-package com.alom.reeltalkbe.dto;
+package com.alom.reeltalkbe.user.dto;
 
 import lombok.Getter;
 import lombok.Setter;
