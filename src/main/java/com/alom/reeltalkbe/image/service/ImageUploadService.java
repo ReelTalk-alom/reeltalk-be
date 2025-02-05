@@ -45,7 +45,13 @@ public class ImageUploadService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
         }
 
-        return amazonS3.getUrl(bucket, fileName).toString();
+        String url = amazonS3.getUrl(bucket, fileName).toString();
+        Image image = Image.builder()
+                .url(url)
+                .build();
+        imageRepository.save(image);
+
+        return url;
     }
 
     // 파일명을 난수화하기 위해 UUID 를 활용하여 난수를 돌린다.

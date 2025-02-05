@@ -1,6 +1,8 @@
 package com.alom.reeltalkbe.comment.entity;
 
 import com.alom.reeltalkbe.common.BaseEntity;
+import com.alom.reeltalkbe.review.domain.Review;
+import com.alom.reeltalkbe.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 

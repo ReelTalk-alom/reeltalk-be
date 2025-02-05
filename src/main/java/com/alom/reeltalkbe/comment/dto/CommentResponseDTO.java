@@ -2,6 +2,8 @@ package com.alom.reeltalkbe.comment.dto;
 
 
 import com.alom.reeltalkbe.comment.entity.Comment;
+import com.alom.reeltalkbe.review.domain.Review;
+import com.alom.reeltalkbe.user.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

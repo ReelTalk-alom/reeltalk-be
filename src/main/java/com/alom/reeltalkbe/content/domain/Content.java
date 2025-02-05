@@ -3,11 +3,13 @@ package com.alom.reeltalkbe.content.domain;
 
 import com.alom.reeltalkbe.common.BaseEntity;
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.util.Date;
 
 @Entity
 @Table(name = "content")
+@Getter
 public class Content extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

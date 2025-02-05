@@ -24,7 +24,7 @@ public class CommentController {
             List<CommentResponseDTO> comments = commentService.getByReview(reviewId);
             return new BaseResponse<>(comments);
         } catch(Exception e){
-            return new BaseResponse<>();
+            return new BaseResponse<>("FAIL");
         }
     }
 
@@ -36,7 +36,7 @@ public class CommentController {
             CommentResponseDTO comment = commentService.add(userID, reviewId, commentRequestDTO);
             return new BaseResponse<>(comment);
         } catch(Exception e){
-            return new BaseResponse<>();
+            return new BaseResponse<>("Comment creation failed");
         }
     }
 
@@ -49,7 +49,7 @@ public class CommentController {
             CommentResponseDTO comment = commentService.update(userId, commentId, commentRequestDTO);
             return new BaseResponse<>(comment);
         } catch(Exception e){
-            return new BaseResponse<>();
+            return new BaseResponse<>("Comment update failed");
         }
     }
 
@@ -63,7 +63,7 @@ public class CommentController {
             commentService.delete(userId, commentId);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch(Exception e){
-            return new BaseResponse<>();
+            return new BaseResponse<>("Comment delete failed");
         }
     }
 

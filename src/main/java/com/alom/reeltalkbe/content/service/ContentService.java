@@ -47,13 +47,14 @@ public class ContentService {
     }
 
     public Content deleteRating(Long content_id, Long user_id) {
-        Content content = contentRepository.findById(content_id)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.CONTENT_NOT_FOUND));
-        Rating rating = ratingRepository.findRatingByContentAndUser(content_id, user_id)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.EXIST_RATING));
-
-        content.deleteRating(rating);
-        ratingRepository.delete(rating);
-        return content;
+//        Content content = contentRepository.findById(content_id)
+//                .orElseThrow(() -> new BaseException(BaseResponseStatus.CONTENT_NOT_FOUND));
+//        Rating rating = ratingRepository.findRatingByContentAndUser(content_id, user_id)
+//                .orElseThrow(() -> new BaseException(BaseResponseStatus.EXIST_RATING));
+//
+//        content.deleteRating(rating);
+//        ratingRepository.delete(rating);
+//        return content;
+        return null;
     }
 }
