@@ -3,6 +3,10 @@ package com.alom.reeltalkbe.review.service;
 import com.alom.reeltalkbe.common.response.BaseResponseStatus;
 import com.alom.reeltalkbe.review.domain.Review;
 import com.alom.reeltalkbe.review.dto.*;
+import com.alom.reeltalkbe.review.dto.request.ReviewUpdateRequestDto;
+import com.alom.reeltalkbe.review.dto.response.ReviewListResponseDto;
+import com.alom.reeltalkbe.review.dto.response.ReviewRegisterRequestDto;
+import com.alom.reeltalkbe.review.dto.response.ReviewResponseDto;
 import com.alom.reeltalkbe.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,14 +21,14 @@ import java.util.stream.Collectors;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final VideoContentRepository videoContentRepository;
+    private final ContentRepository contentRepository;
     private final UserRepository userRepository;
     private final ImageRepository imageRepository;
 
-    @Transactional
+
     public ReviewResponseDto registerReview(ReviewRegisterRequestDto requestDto) {
 
-        VideoContent videoContent = videoContentRepository.findById(requestDto.getContentId())
+        Content content = contentRepository.findById(requestDto.getContentId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 콘텐츠입니다."));
 
         User user = userRepository.findById(requestDto.getUserId())
@@ -34,7 +38,7 @@ public class ReviewService {
                 .orElse(null); // 이미지가 존재하지 않으면 null 허용
 
         Review review = Review.builder()
-                .videoContent(videoContent)
+                .content(content)
                 .user(user)
                 .image(image)
                 .description(requestDto.getDescription())
@@ -50,7 +54,7 @@ public class ReviewService {
      */
     @Transactional(readOnly = true)
     public ReviewListResponseDto getReviewsByContentId(Long contentId) {
-        List<ReviewSummaryDto> reviewList = reviewRepository.findByVideoContentId(contentId)
+        List<ReviewSummaryDto> reviewList = reviewRepository.findByContentId(contentId)
                 .stream()
                 .map(this::convertToSummaryDto)
                 .collect(Collectors.toList());
@@ -72,8 +76,8 @@ public class ReviewService {
     /**
      * 리뷰 수정
      */
-    public ReviewResponseDto updateReview(ReviewUpdateRequestDto requestDTO) {
-        Review review = reviewRepository.findById(requestDTO.getReviewId())
+    public ReviewResponseDto updateReview(Long reviewId, ReviewUpdateRequestDto requestDTO) {
+        Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException(BaseResponseStatus.INVALID_REQUEST.getMessage()));
 
         review.updateReview(requestDTO.getUrl(), requestDTO.getDescription(), requestDTO.getRating());
@@ -81,7 +85,7 @@ public class ReviewService {
 
         return new ReviewResponseDto(
                 review.getId(),
-                review.getVideoContent().getId(),
+                review.getContent().getId(),
                 review.getImage() != null ? review.getImage().getId() : null,
                 review.getUrl(),
                 review.getDescription(),
@@ -103,7 +107,7 @@ public class ReviewService {
     private ReviewResponseDto convertToDto(Review review) {
         return new ReviewResponseDto(
                 review.getId(),
-                review.getVideoContent().getId(),
+                review.getContent().getId(),
                 review.getImage() != null ? review.getImage().getId() : null,
                 review.getUser().getId(),
                 review.getUrl(),
@@ -117,7 +121,7 @@ public class ReviewService {
     private ReviewSummaryDto convertToSummaryDto(Review review) {
         return new ReviewSummaryDto(
                 review.getId(),
-                review.getVideoContent().getId(),
+                review.getContent().getId(),
                 review.getUser().getId(),
                 review.getImage() != null ? review.getImage().getId() : null,
                 review.getRating(),

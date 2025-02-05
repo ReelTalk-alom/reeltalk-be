@@ -2,13 +2,16 @@ package com.alom.reeltalkbe.review.controller;
 
 import com.alom.reeltalkbe.common.response.BaseResponse;
 import com.alom.reeltalkbe.review.dto.*;
+import com.alom.reeltalkbe.review.dto.request.ReviewUpdateRequestDto;
+import com.alom.reeltalkbe.review.dto.response.ReviewListResponseDto;
+import com.alom.reeltalkbe.review.dto.response.ReviewRegisterRequestDto;
+import com.alom.reeltalkbe.review.dto.response.ReviewResponseDto;
 import com.alom.reeltalkbe.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/reviews")
+@RequestMapping("/api/review")
 @RequiredArgsConstructor
 public class ReviewController {
 
@@ -26,8 +29,8 @@ public class ReviewController {
     /**
      * 특정 콘텐츠의 리뷰 목록 조회 API (DTO 없이 contentId만 사용)
      */
-    @GetMapping("/content/{contentId}")
-    public BaseResponse<ReviewListResponseDto> getReviewsByContentId(@PathVariable Long contentId) {
+    @GetMapping
+    public BaseResponse<ReviewListResponseDto> getReviewsByContentId(@RequestParam Long contentId) {
         ReviewListResponseDto listResponseDTO = reviewService.getReviewsByContentId(contentId);
         return new BaseResponse<>(listResponseDTO);
     }
@@ -43,9 +46,9 @@ public class ReviewController {
     /**
      * 리뷰 수정 API
      */
-    @PutMapping
-    public BaseResponse<ReviewResponseDto> updateReview(@RequestBody ReviewUpdateRequestDto requestDTO) {
-        ReviewResponseDto responseDTO = reviewService.updateReview(requestDTO);
+    @PutMapping("/{reviewId}")
+    public BaseResponse<ReviewResponseDto> updateReview(@PathVariable Long reviewId, @RequestBody ReviewUpdateRequestDto requestDTO) {
+        ReviewResponseDto responseDTO = reviewService.updateReview(reviewId, requestDTO);
         return new BaseResponse<>(responseDTO);
     }
 
