@@ -17,6 +17,8 @@ public enum BaseResponseStatus {
 
     EXIST_EMAIL(false, HttpStatus.CONFLICT.value(), "이미 존재하는 이메일입니다."),
     EXIST_USERNAME(false, HttpStatus.CONFLICT.value(), "이미 존재하는 사용자 이름입니다."),
+    EXIST_RATING(false, HttpStatus.CONFLICT.value(), "이미 평가된 컨텐츠입니다."),
+
 
     NON_EXIST_USER(false, HttpStatus.UNAUTHORIZED.value(), "존재하지 않는 회원입니다."),
     HTTP_METHOD_ERROR(false, HttpStatus.FORBIDDEN.value(), "http 메서드가 올바르지 않습니다."),
@@ -25,7 +27,7 @@ public enum BaseResponseStatus {
     INVALID_MEETING(false, HttpStatus.NO_CONTENT.value(), "존재하지 않는 게시글입니다."),
     INVALID_CHATROOM(false, HttpStatus.NOT_FOUND.value(), "유효하지 않은 채팅방입니다."),
 
-
+    CONTENT_NOT_FOUND(false, HttpStatus.NO_CONTENT.value(), "존재하지 않는 컨텐츠입니다."),
     INVALID_REQUEST(false, HttpStatus.NO_CONTENT.value(), "유효하지 않은 요청입니다."),
 
     INVALID_QUESTION(false, HttpStatus.NO_CONTENT.value(), "유효하지 않은 질문입니다."),
