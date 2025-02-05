@@ -27,6 +27,7 @@ public enum BaseResponseStatus {
     INVALID_REVIEW(false, HttpStatus.NOT_FOUND.value(), "존재하지 않는 리뷰입니다."),
     INVALID_MEETING(false, HttpStatus.NO_CONTENT.value(), "존재하지 않는 게시글입니다."),
     INVALID_CHATROOM(false, HttpStatus.NOT_FOUND.value(), "유효하지 않은 채팅방입니다."),
+    INVALID_COMMENT(false, HttpStatus.NOT_FOUND.value(), "존재하지 않은 댓글입니다."),
 
     CONTENT_NOT_FOUND(false, HttpStatus.NO_CONTENT.value(), "존재하지 않는 컨텐츠입니다."),
     INVALID_REQUEST(false, HttpStatus.NO_CONTENT.value(), "유효하지 않은 요청입니다."),
