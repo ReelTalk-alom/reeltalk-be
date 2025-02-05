@@ -1,8 +1,8 @@
-package com.alom.reeltalkbe.service;
+package com.alom.reeltalkbe.user.service;
 
-import com.alom.reeltalkbe.domain.User;
-import com.alom.reeltalkbe.dto.CustomUserDetails;
-import com.alom.reeltalkbe.repository.UserRepository;
+import com.alom.reeltalkbe.user.domain.User;
+import com.alom.reeltalkbe.user.dto.CustomUserDetails;
+import com.alom.reeltalkbe.user.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

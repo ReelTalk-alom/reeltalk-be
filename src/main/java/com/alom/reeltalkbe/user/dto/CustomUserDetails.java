@@ -1,6 +1,6 @@
-package com.alom.reeltalkbe.dto;
+package com.alom.reeltalkbe.user.dto;
 
-import com.alom.reeltalkbe.domain.User;
+import com.alom.reeltalkbe.user.domain.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

@@ -1,5 +1,7 @@
-package com.alom.reeltalkbe.service;
+package com.alom.reeltalkbe.image.service;
 
+import com.alom.reeltalkbe.image.domain.Image;
+import com.alom.reeltalkbe.image.repository.ImageRepository;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
@@ -14,16 +16,16 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class S3UploadService {
+public class ImageUploadService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
     private final AmazonS3 amazonS3;
+    private final ImageRepository imageRepository;
 
     public String uploadFile(MultipartFile multipartFile){
 
