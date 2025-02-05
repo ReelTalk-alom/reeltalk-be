@@ -45,9 +45,6 @@ public class ImageUploadService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
         }
 
-
-        imageRepository.save(Image.builder().url(amazonS3.getUrl(bucket, fileName).toString()).build());
-
         return amazonS3.getUrl(bucket, fileName).toString();
     }
 

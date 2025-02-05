@@ -1,6 +1,7 @@
 package com.alom.reeltalkbe.image.controller;
 
 import com.alom.reeltalkbe.common.response.BaseResponse;
+import com.alom.reeltalkbe.image.service.ImageUploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/mypage/image")
 public class ImageController {
 
-    private final com.alom.reeltalkbe.service.ImageUploadService s3UploadService;
+    private final ImageUploadService s3UploadService;
 
     @GetMapping
     public BaseResponse<String> getImage() {
