@@ -22,14 +22,14 @@ public class ContentController {
     }
 
     // 컨텐츠 세부 정보 조회
-    @GetMapping("/contents/{content_id}")
+    @GetMapping("/contents/{contentId}")
     public BaseResponse<Content> getContentInfo(@PathVariable Long content_id) {
         return new BaseResponse<>(contentService
                 .findContentById(content_id));
     }
 
     // 컨텐츠 평점 생성
-    @PostMapping("/contents/{content_id}")
+    @PostMapping("/contents/{contentId}")
     public BaseResponse<Content> evaluateContentRating(@PathVariable Long content_id,
                                                        RatingDto ratingDto) {
         return new BaseResponse<>(contentService
@@ -37,7 +37,7 @@ public class ContentController {
     }
 
     // 컨텐츠 평점 삭제
-    @DeleteMapping("/contents/{content_id}")
+    @DeleteMapping("/contents/{contentId}")
     public BaseResponse<Content> deleteContentRating(@PathVariable Long content_id,
                                                      RatingDto ratingDto) {
         return new BaseResponse<>(contentService
