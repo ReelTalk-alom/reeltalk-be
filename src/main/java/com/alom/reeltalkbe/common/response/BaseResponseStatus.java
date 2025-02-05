@@ -22,6 +22,7 @@ public enum BaseResponseStatus {
     HTTP_METHOD_ERROR(false, HttpStatus.FORBIDDEN.value(), "http 메서드가 올바르지 않습니다."),
 
     INVALID_MEMBER(false, HttpStatus.NOT_FOUND.value(), "유효하지 않은 회원입니다."),
+    INVALID_REVIEW(false, HttpStatus.NOT_FOUND.value(), "존재하지 않는 리뷰입니다."),
     INVALID_MEETING(false, HttpStatus.NO_CONTENT.value(), "존재하지 않는 게시글입니다."),
     INVALID_CHATROOM(false, HttpStatus.NOT_FOUND.value(), "유효하지 않은 채팅방입니다."),
 
@@ -31,6 +32,7 @@ public enum BaseResponseStatus {
     INVALID_QUESTION(false, HttpStatus.NO_CONTENT.value(), "유효하지 않은 질문입니다."),
     INVALID_ANSWER(false, HttpStatus.NO_CONTENT.value(), "답변을 입력해주세요."),
     ANSWER_NOT_FOUND(false, HttpStatus.NO_CONTENT.value(), "답변이 존재하지 않습니다."),
+    COMMENT_NOT_FOUND(false, HttpStatus.NO_CONTENT.value(), "댓글이 존재하지 않습니다."),
 
     // 5xx : server error
     FAIL_REVIEW_POST(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "리뷰 작성에 실패했습니다."),
