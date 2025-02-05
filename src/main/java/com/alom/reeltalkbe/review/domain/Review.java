@@ -21,7 +21,7 @@ public class Review extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "content_id", nullable = false)
-    private VideoContent videoContent;
+    private Content content;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -34,6 +34,7 @@ public class Review extends BaseEntity {
     @Lob
     private String description;
     private String url;
+
     private Float rating;
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -41,8 +42,8 @@ public class Review extends BaseEntity {
 
 
     @Builder
-    public Review(VideoContent videoContent, User user, Image image, String url, String description, Float rating) {
-        this.videoContent = videoContent;
+    public Review(Content content, User user, Image image, String url, String description, Float rating) {
+        this.content = content;
         this.user = user;
         this.image = image;
         this.url = url;
