@@ -69,7 +69,16 @@ public class ImageUploadService {
     }
 
 
-    public String deleteFile(String fileName) {
+    public String deleteFile(Long id) {
+        // ID로 이미지 검색
+        Image image = imageRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "파일을 찾을 수 없습니다: " + id));
+
+        String fileUrl = image.getUrl();
+
+        // S3에서 파일명 추출 (URL에서 파일명 추출하는 로직 필요)
+        String fileName = extractFileNameFromUrl(fileUrl);
+
         System.out.println("삭제 요청 파일명: " + fileName);
 
         // S3에 파일이 존재하는지 확인
@@ -80,10 +89,17 @@ public class ImageUploadService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "파일이 존재하지 않습니다: " + fileName);
         }
 
-        String originUrl = amazonS3.getUrl(bucket, fileName).toString();
-
+        // S3에서 파일 삭제
         amazonS3.deleteObject(new DeleteObjectRequest(bucket, fileName));
+
+        // DB에서 이미지 정보 삭제
+        imageRepository.delete(image);
+
         System.out.println("삭제 완료: " + fileName);
-        return originUrl;
+        return fileUrl;
+    }
+
+    private String extractFileNameFromUrl(String fileUrl) {
+        return fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
     }
 }
