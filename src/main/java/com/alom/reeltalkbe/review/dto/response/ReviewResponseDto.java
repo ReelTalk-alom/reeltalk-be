@@ -16,5 +16,5 @@ public class ReviewResponseDto {
 
     private String url;
     private String description;
-    private Float rating;
+    private Double rating;
 }
