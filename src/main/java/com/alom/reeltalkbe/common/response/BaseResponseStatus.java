@@ -39,6 +39,8 @@ public enum BaseResponseStatus {
 
     // 5xx : server error
     FAIL_REVIEW_POST(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "리뷰 작성에 실패했습니다."),
+    FAIL_COMMENT_POST(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "댓글 작성에 실패했습니다."),
+    FAIL_COMMENT_DELETE(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "댓글 삭제에 실패했습니다."),
     DATABASE_INSERT_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "데이터베이스 입력에 실패했습니다."),
     FAIL_IMAGE_CONVERT(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Multipart 파일 전환에 실패했습니다.");
 

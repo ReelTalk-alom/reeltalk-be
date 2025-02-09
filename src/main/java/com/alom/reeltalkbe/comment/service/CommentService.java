@@ -42,7 +42,6 @@ public class CommentService {
                 .user(user)
                 .review(review)
                 .content(commentParamDTO.getContent())
-                .rating(commentParamDTO.getRating())
                 .build();
 
         return new CommentResponseDTO(commentRepository.save(comment));
@@ -75,7 +74,7 @@ public class CommentService {
             throw new BaseException(BaseResponseStatus.INVALID_MEMBER);
         }
 
-        comment.update(commentRequestDTO.getContent(), commentRequestDTO.getRating());
+        comment.update(commentRequestDTO.getContent());
         return new CommentResponseDTO(commentRepository.save(comment));
 
     }
@@ -96,7 +95,7 @@ public class CommentService {
     }
 
     /**
-     * CustomUserDetails getUserId 추가
+     * CustomUserDetails getUserId 추가 후 사용 예정
      */
 
     /*public CommentResponseDTO add(CustomUserDetails userDetails, Long reviewId, CommentRequestDTO commentParamDTO){
@@ -117,7 +116,6 @@ public class CommentService {
                 .user(user)
                 .review(review)
                 .content(commentParamDTO.getContent())
-                .rating(commentParamDTO.getRating())
                 .build();
 
         return new CommentResponseDTO(commentRepository.save(comment));
@@ -142,7 +140,7 @@ public class CommentService {
             throw new BaseException(BaseResponseStatus.INVALID_MEMBER);
         }
 
-        comment.update(commentRequestDTO.getContent(), commentRequestDTO.getRating());
+        comment.update(commentRequestDTO.getContent());
         return new CommentResponseDTO(commentRepository.save(comment));
 
     }

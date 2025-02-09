@@ -26,7 +26,7 @@ public class CommentController {
             List<CommentResponseDTO> comments = commentService.getByReview(reviewId);
             return new BaseResponse<>(comments);
         } catch(Exception e){
-            return new BaseResponse<>("FAIL");
+            return new BaseResponse<>(BaseResponseStatus.COMMENT_NOT_FOUND);
         }
     }
 
@@ -40,7 +40,7 @@ public class CommentController {
             CommentResponseDTO comment = commentService.add(userId, reviewId, commentRequestDTO);
             return new BaseResponse<>(comment);
         } catch(Exception e){
-            return new BaseResponse<>("Comment creation failed");
+            return new BaseResponse<>(BaseResponseStatus.FAIL_COMMENT_POST);
         }
     }
 
@@ -55,14 +55,14 @@ public class CommentController {
             CommentResponseDTO comment = commentService.update(userId, commentId, commentRequestDTO);
             return new BaseResponse<>(comment);
         } catch(Exception e){
-            return new BaseResponse<>("Comment update failed");
+            return new BaseResponse<>(BaseResponseStatus.FAIL_COMMENT_POST);
         }
     }
 
 
     @DeleteMapping("/{reviewId}")
     public BaseResponse<?> deleteComment(@PathVariable(required = true, name = "reviewId") Long reviewId,
-                                         @PathVariable(required = true, name = "userId") Long userId, //getUserId 추가후 삭제 예정
+                                         @RequestParam(required = true, name = "userId") Long userId, //getUserId 추가후 삭제 예정
                                          @AuthenticationPrincipal CustomUserDetails customUserDetails,
                                          @RequestParam(required = true, name = "commentId") Long commentId) {
 
@@ -71,7 +71,7 @@ public class CommentController {
             commentService.delete(userId, commentId);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch(Exception e){
-            return new BaseResponse<>("Comment delete failed");
+            return new BaseResponse<>(BaseResponseStatus.FAIL_COMMENT_DELETE);
         }
     }
 
