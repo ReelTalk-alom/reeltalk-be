@@ -18,7 +18,7 @@ public class TalkService {
 
         // todo : content id로 content 객체 구해서 talkMessage 객체 생성 후 저장
 
-        return chatMessageRepository.save(entity);
+        return chatMessageRepository.save(null);
     }
 
     public List<TalkMessage> getMessagesByContentId(Long contendId) {
