@@ -9,7 +9,7 @@ import com.alom.reeltalkbe.review.domain.Review;
 import com.alom.reeltalkbe.review.dto.*;
 import com.alom.reeltalkbe.review.dto.request.ReviewUpdateRequestDto;
 import com.alom.reeltalkbe.review.dto.response.ReviewListResponseDto;
-import com.alom.reeltalkbe.review.dto.response.ReviewRegisterRequestDto;
+import com.alom.reeltalkbe.review.dto.request.ReviewRegisterRequestDto;
 import com.alom.reeltalkbe.review.dto.response.ReviewResponseDto;
 import com.alom.reeltalkbe.review.repository.ReviewRepository;
 import com.alom.reeltalkbe.user.domain.User;
@@ -49,7 +49,6 @@ public class ReviewService {
                 .image(image)
                 .description(requestDto.getDescription())
                 .url(requestDto.getUrl())
-                .rating(requestDto.getRating())
                 .build();
 
         return convertToDto(reviewRepository.save(review));
@@ -86,7 +85,7 @@ public class ReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException(BaseResponseStatus.INVALID_REQUEST.getMessage()));
 
-        review.updateReview(requestDTO.getUrl(), requestDTO.getDescription(), requestDTO.getRating());
+        review.updateReview(requestDTO.getUrl(), requestDTO.getDescription());
 
 
         return new ReviewResponseDto(
@@ -96,7 +95,7 @@ public class ReviewService {
                 review.getUser().getUserId(),
                 review.getUrl(),
                 review.getDescription(),
-                review.getRating()
+                review.getRatingAverage()
         );
     }
 
@@ -119,7 +118,7 @@ public class ReviewService {
                 review.getUser().getUserId(),
                 review.getUrl(),
                 review.getDescription(),
-                review.getRating()
+                review.getRatingAverage()
         );
     }
 
@@ -129,7 +128,7 @@ public class ReviewService {
                 review.getContent().getId(),
                 review.getUser().getUserId(),
                 review.getImage() != null ? review.getImage().getId() : null,
-                review.getRating(),
+                review.getRatingAverage(),
                 review.getCreatedAt().toString(),
                 review.getUpdatedAt().toString()
         );
