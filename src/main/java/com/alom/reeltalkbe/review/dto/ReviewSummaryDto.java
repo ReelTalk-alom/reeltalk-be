@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,7 +17,7 @@ public class ReviewSummaryDto {
     private Long userId;
     private Long imageId;
 
-    private Float rating;
+    private Double rating;
     private String createAt;
     private String updateAt;
 }
