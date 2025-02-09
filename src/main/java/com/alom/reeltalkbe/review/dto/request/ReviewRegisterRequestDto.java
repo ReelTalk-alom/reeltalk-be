@@ -1,4 +1,4 @@
-package com.alom.reeltalkbe.review.dto.response;
+package com.alom.reeltalkbe.review.dto.request;
 
 import lombok.*;
 
@@ -13,5 +13,5 @@ public class ReviewRegisterRequestDto {
         private String imageUrl;
         private String url;
         private String description;
-        private Float rating;
+
 }
