@@ -9,8 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ReviewUpdateRequestDto {
 
+    private Long reviewId;
+
     private String description;
     private String url;
     private String imageUrl;
-    private Float rating;
+
 }
