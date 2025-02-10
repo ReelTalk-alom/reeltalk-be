@@ -64,7 +64,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(username, role, 60*60*10L);
+        // 토큰 30분 유지
+        String token = jwtUtil.createJwt(username, role, 30 * 60 * 1000L);
 
         // JWT를 응답 헤더에 추가
         response.addHeader("Authorization", "Bearer " + token);
