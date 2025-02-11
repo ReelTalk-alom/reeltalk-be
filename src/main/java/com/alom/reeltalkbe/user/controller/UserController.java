@@ -4,9 +4,12 @@ import com.alom.reeltalkbe.common.response.BaseResponse;
 import com.alom.reeltalkbe.common.response.BaseResponseStatus;
 import com.alom.reeltalkbe.image.service.ImageUploadService;
 import com.alom.reeltalkbe.user.domain.User;
+import com.alom.reeltalkbe.user.dto.CustomUserDetails;
 import com.alom.reeltalkbe.user.dto.JoinDto;
 import com.alom.reeltalkbe.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,8 +27,8 @@ public class UserController {
 
     // 회원가입 API
     @PostMapping("/signup")
-    public User registerUser(@RequestBody JoinDto joinDto) {
-        return userService.registerUser(joinDto);
+    public BaseResponse<User> registerUser(@RequestBody JoinDto joinDto) {
+        return new BaseResponse<>(userService.registerUser(joinDto));
     }
 
     // admin role test
@@ -54,5 +57,14 @@ public class UserController {
         String url = userService.getProfileImage();
         return new BaseResponse<>(url);
     }
+
+    // test
+//    @GetMapping("/me")
+//    public ResponseEntity<CustomUserDetails> getCurrentUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
+//        System.out.println(userDetails.getUserId());
+//        System.out.println(userDetails.getUsername());
+//        System.out.println(userDetails.getPassword());
+//        return ResponseEntity.ok().body(userDetails);
+//    }
 
 }

@@ -45,7 +45,8 @@ public class User {
     private String role;
 
     @Builder
-    public User(String email, String password, String username, String role) {
+    public User(Long id, String email, String password, String username, String role) {
+        this.userId = id;
         this.email = email;
         this.password = password;
         this.username = username;

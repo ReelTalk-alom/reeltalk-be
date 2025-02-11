@@ -43,12 +43,6 @@ public class UserService {
             throw new IllegalStateException("이미 사용 중인 닉네임입니다.");
         }
 
-//        User user = new User();
-//        user.setEmail();
-//        user.setUsername);
-//        user.setPassword();
-//        user.setRole("ROLE_ADMIN");
-
         User user = User.builder()
                 .email(joinDto.getEmail())
                 .password(bCryptPasswordEncoder.encode(joinDto.getPassword()))

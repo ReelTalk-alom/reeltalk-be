@@ -28,8 +28,8 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         System.out.println("doFilterInternal");
-        String requestURI = request.getRequestURI();
 
+//        String requestURI = request.getRequestURI();
 //        // 회원가입 & 로그인 요청은 필터 적용 안 함
 //        if (requestURI.equals("/api/users/signup") || requestURI.equals("/api/users/login")) {
 //            filterChain.doFilter(request, response);
@@ -55,17 +55,13 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 토큰에서 username과 role 가져오기
+        // 토큰에서 userId, username과 role 가져오기
+        Long userId = jwtUtil.getUserId(token);
         String username = jwtUtil.getUsername(token);
         String role = jwtUtil.getRole(token);
 
-//        // userEntity 객체 생성 및 값 설정
-//        User userEntity = new User();
-//        userEntity.setUsername(username);
-//        userEntity.setPassword("temppassword");
-//        userEntity.setRole(role);
-
         User user = User.builder()
+                .id(userId)
                 .username(username)
                 .password("temppassword")
                 .role(role)
