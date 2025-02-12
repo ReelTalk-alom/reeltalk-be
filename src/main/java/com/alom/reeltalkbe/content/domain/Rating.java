@@ -5,7 +5,6 @@ import com.alom.reeltalkbe.user.domain.User;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 @Entity
@@ -19,12 +18,12 @@ public class Rating extends BaseEntity {
     private Long id;
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-    
 
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "content_id")
     private Content content;
 
@@ -32,9 +31,9 @@ public class Rating extends BaseEntity {
 
     public Rating() {}
 
-    // todo : 빌더패턴 user 추가
     @Builder
-    public Rating(Content content, Integer ratingValue) {
+    public Rating(User user, Content content, Integer ratingValue) {
+        this.user = user;
         this.content = content;
         this.ratingValue = ratingValue;
     }

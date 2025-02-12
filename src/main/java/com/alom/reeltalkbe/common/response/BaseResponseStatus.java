@@ -29,7 +29,11 @@ public enum BaseResponseStatus {
     INVALID_CHATROOM(false, HttpStatus.NOT_FOUND.value(), "유효하지 않은 채팅방입니다."),
     INVALID_COMMENT(false, HttpStatus.NOT_FOUND.value(), "존재하지 않은 댓글입니다."),
 
+
+    NOT_YOUR_MESSAGE(false, HttpStatus.NO_CONTENT.value(), "다른 유저의 톡 메시지입니다."),
+    MESSAGE_NOT_FOUND(false, HttpStatus.NO_CONTENT.value(), "존재하지 않는 실시간 톡 메시지입니다."),
     CONTENT_NOT_FOUND(false, HttpStatus.NO_CONTENT.value(), "존재하지 않는 컨텐츠입니다."),
+    RATING_NOT_FOUND(false, HttpStatus.NO_CONTENT.value(), "아직 평가하지 않은 컨텐츠입니다."),
     INVALID_REQUEST(false, HttpStatus.NO_CONTENT.value(), "유효하지 않은 요청입니다."),
 
     INVALID_QUESTION(false, HttpStatus.NO_CONTENT.value(), "유효하지 않은 질문입니다."),
