@@ -36,7 +36,6 @@ public class JwtFilter extends OncePerRequestFilter {
 //            return;
 //        }
 
-        // 요청 Body에서 JSON 파싱해서 "token" 값 가져오기
         String token = extractToken(request);
 
         // 토큰이 없으면 그대로 필터 체인 실행
