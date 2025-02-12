@@ -1,6 +1,7 @@
 package com.alom.reeltalkbe.user.domain;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -8,7 +9,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
+//@Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "user")  // 실제 DB 테이블 이름
@@ -33,6 +34,8 @@ public class User {
 
     private String field;  // ERD 기준: Field (사진, 추후 파일 업로드 처리 필요)
 
+    private String imageUrl;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();  // ERD 기준: created_at 회원가입 시간
 
@@ -40,4 +43,17 @@ public class User {
     private LocalDateTime updatedAt = LocalDateTime.now();  // ERD 기준: updated_at 회원 정보 수정
 
     private String role;
+
+    @Builder
+    public User(Long id, String email, String password, String username, String role) {
+        this.userId = id;
+        this.email = email;
+        this.password = password;
+        this.username = username;
+        this.role = role;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 }
