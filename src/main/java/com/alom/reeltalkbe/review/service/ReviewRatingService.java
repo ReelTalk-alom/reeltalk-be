@@ -1,5 +1,7 @@
 package com.alom.reeltalkbe.review.service;
 
+import com.alom.reeltalkbe.common.exception.BaseException;
+import com.alom.reeltalkbe.common.response.BaseResponseStatus;
 import com.alom.reeltalkbe.review.domain.Review;
 import com.alom.reeltalkbe.review.domain.ReviewRating;
 import com.alom.reeltalkbe.review.dto.ReviewRatingDto;
@@ -10,12 +12,10 @@ import com.alom.reeltalkbe.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+
 
 import java.util.Optional;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -34,16 +34,16 @@ public class ReviewRatingService {
         Long reviewId = reviewRatingDto.getReviewId();
         int ratingValue = reviewRatingDto.getRating();
 
-        // 1~5점 범위 확인
-        if (ratingValue < 1 || ratingValue > 5) {
-            throw new ResponseStatusException(BAD_REQUEST, "평점은 1~5 사이여야 합니다.");
-        }
+        // 1~5점 범위 확인, BaseEntity 추가해서해야할듯
+      /*  if (ratingValue < 1 || ratingValue > 5) {
+            throw new BaseException();
+        }*/
 
         // 유저 & 리뷰 조회
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "리뷰를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_REVIEW)); // 4xx
 
         // 기존 평점이 존재하는지 확인
         Optional<ReviewRating> existingRating = reviewRatingRepository.findByUserAndReview(user, review);
