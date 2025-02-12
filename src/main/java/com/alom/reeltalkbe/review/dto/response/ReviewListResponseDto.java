@@ -1,6 +1,5 @@
 package com.alom.reeltalkbe.review.dto.response;
 
-import com.alom.reeltalkbe.review.dto.ReviewSummaryDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

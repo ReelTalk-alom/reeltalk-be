@@ -32,10 +32,9 @@ public class ContentService {
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.CONTENT_NOT_FOUND));
     }
 
-    public Content addRating(Long contentId, String username, RatingDto ratingDto) {
+    public Content addRating(Long contentId, Long userId, RatingDto ratingDto) {
         // 이미 평가한 컨텐츠라면 예외 처리
-        // todo: user pk 이름 id로 바꾸기? -> getUserId() 메서드도 getId() 로 바뀜
-        if (ratingRepository.findRatingByContentIdAndUserUsername(contentId, username).isPresent()) {
+        if (ratingRepository.findRatingByContentIdAndUserId(contentId, userId).isPresent()) {
             throw new BaseException(BaseResponseStatus.EXIST_RATING);
         }
         // content 조회
@@ -44,7 +43,7 @@ public class ContentService {
         // user 조회 후 rating 빌더 패턴 사용
         Rating rating = Rating
                 .builder()
-                .user(userRepository.findByUsername(username)
+                .user(userRepository.findById(userId)
                         .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER)))
                 .content(content)
                 .ratingValue(ratingDto.getRating())
@@ -56,10 +55,10 @@ public class ContentService {
         return content;
     }
 
-    public Content deleteRating(Long contentId, String username) {
+    public Content deleteRating(Long contentId, Long userId) {
         // content, rating 조회
         Content content = findContentById(contentId);
-        Rating rating = ratingRepository.findRatingByContentIdAndUserUsername(contentId, username)
+        Rating rating = ratingRepository.findRatingByContentIdAndUserId(contentId, userId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.RATING_NOT_FOUND));
 
         content.deleteRating(rating);
