@@ -36,7 +36,7 @@ public class CommentController {
                                        @AuthenticationPrincipal CustomUserDetails customUserDetails,
                                        CommentRequestDTO commentRequestDTO){
         try {
-            //CommentResponseDTO comment = commentService.add(customUserDetails, reviewId, commentRequestDTO);
+            //Long userId = customUserDetails.getUserId();
             CommentResponseDTO comment = commentService.add(userId, reviewId, commentRequestDTO);
             return new BaseResponse<>(comment);
         } catch(Exception e){
@@ -51,7 +51,7 @@ public class CommentController {
                                          @AuthenticationPrincipal CustomUserDetails customUserDetails,
                                          CommentRequestDTO commentRequestDTO){
         try {
-            //CommentResponseDTO comment = commentService.add(customUserDetails, reviewId, commentRequestDTO);
+            //Long userId = customUserDetails.getUserId();
             CommentResponseDTO comment = commentService.update(userId, commentId, commentRequestDTO);
             return new BaseResponse<>(comment);
         } catch(Exception e){
@@ -67,7 +67,7 @@ public class CommentController {
                                          @RequestParam(required = true, name = "commentId") Long commentId) {
 
         try {
-            //CommentResponseDTO comment = commentService.add(customUserDetails, reviewId, commentRequestDTO);
+            //Long userId = customUserDetails.getUserId();
             commentService.delete(userId, commentId);
             return new BaseResponse<>(BaseResponseStatus.SUCCESS);
         } catch(Exception e){
