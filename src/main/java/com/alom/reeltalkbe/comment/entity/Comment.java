@@ -27,12 +27,11 @@ public class Comment extends BaseEntity {
 
     private String content;
 
-    private int rating;
 
 
-    public void update(String content, int rating) {
+
+    public void update(String content) {
         this.content = content;
-        this.rating = rating;
     }
 
 
