@@ -2,10 +2,9 @@ package com.alom.reeltalkbe.review.controller;
 
 import com.alom.reeltalkbe.common.response.BaseResponse;
 import com.alom.reeltalkbe.review.dto.*;
-import com.alom.reeltalkbe.review.dto.request.ReviewUpdateRequestDto;
 import com.alom.reeltalkbe.review.dto.response.ReviewListResponseDto;
-import com.alom.reeltalkbe.review.dto.response.ReviewRegisterRequestDto;
 import com.alom.reeltalkbe.review.dto.response.ReviewResponseDto;
+import com.alom.reeltalkbe.review.dto.response.ReviewSummaryDto;
 import com.alom.reeltalkbe.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +20,7 @@ public class ReviewController {
      * 리뷰 등록 API
      */
     @PostMapping
-    public BaseResponse<ReviewResponseDto> registerReview(@RequestBody ReviewRegisterRequestDto requestDTO) {
+    public BaseResponse<ReviewResponseDto> registerReview(@RequestBody ReviewRequestDto requestDTO) {
         ReviewResponseDto responseDTO = reviewService.registerReview(requestDTO);
         return new BaseResponse<>(responseDTO);
     }
@@ -47,7 +46,7 @@ public class ReviewController {
      * 리뷰 수정 API
      */
     @PutMapping("/{reviewId}")
-    public BaseResponse<ReviewResponseDto> updateReview(@PathVariable Long reviewId, @RequestBody ReviewUpdateRequestDto requestDTO) {
+    public BaseResponse<ReviewResponseDto> updateReview(@PathVariable Long reviewId, @RequestBody ReviewRequestDto requestDTO) {
         ReviewResponseDto responseDTO = reviewService.updateReview(reviewId, requestDTO);
         return new BaseResponse<>(responseDTO);
     }

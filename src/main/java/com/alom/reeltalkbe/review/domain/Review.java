@@ -41,28 +41,53 @@ public class Review extends BaseEntity {
     private String description;
     private String url;
 
-    private Float rating;
+    private Double ratingCount=0.0;
+    private Double ratingSum=0.0;
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
 
 
     @Builder
-    public Review(Content content, User user, Image image, String url, String description, Float rating) {
+    public Review(Content content, User user, Image image, String url, String description) {
         this.content = content;
         this.user = user;
         this.image = image;
         this.url = url;
         this.description = description;
-        this.rating = rating;
+    }
+
+    /**
+     개별 평점 추가 (ReviewRating 추가)
+     */
+    public void addRating(double ratingValue) {
+        this.ratingSum += ratingValue;
+        this.ratingCount++;
+    }
+
+    /**
+     * 개별 평점 제거 (ReviewRating 삭제)
+     */
+    public void removeRating(double ratingValue) {
+
+        this.ratingSum -= ratingValue;
+        this.ratingCount--;
     }
 
     /**
      * 리뷰 수정 메서드
      */
-    public void updateReview(String url, String description, Float rating) {
+    public void updateReview(String url, String description) {
         this.url = url;
         this.description = description;
-        this.rating = rating;
     }
+
+    /**
+     *  평균 평점 계산
+     */
+    public double getRatingAverage() {
+        return (ratingCount == 0) ? 0.0 : (double) ratingSum / ratingCount;
+    }
+
+
 }

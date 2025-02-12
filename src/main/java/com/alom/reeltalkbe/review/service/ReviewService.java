@@ -1,5 +1,6 @@
 package com.alom.reeltalkbe.review.service;
 
+import com.alom.reeltalkbe.common.exception.BaseException;
 import com.alom.reeltalkbe.common.response.BaseResponseStatus;
 import com.alom.reeltalkbe.content.domain.Content;
 import com.alom.reeltalkbe.content.repository.ContentRepository;
@@ -7,10 +8,9 @@ import com.alom.reeltalkbe.image.domain.Image;
 import com.alom.reeltalkbe.image.repository.ImageRepository;
 import com.alom.reeltalkbe.review.domain.Review;
 import com.alom.reeltalkbe.review.dto.*;
-import com.alom.reeltalkbe.review.dto.request.ReviewUpdateRequestDto;
 import com.alom.reeltalkbe.review.dto.response.ReviewListResponseDto;
-import com.alom.reeltalkbe.review.dto.response.ReviewRegisterRequestDto;
 import com.alom.reeltalkbe.review.dto.response.ReviewResponseDto;
+import com.alom.reeltalkbe.review.dto.response.ReviewSummaryDto;
 import com.alom.reeltalkbe.review.repository.ReviewRepository;
 import com.alom.reeltalkbe.user.domain.User;
 import com.alom.reeltalkbe.user.repository.UserRepository;
@@ -32,27 +32,30 @@ public class ReviewService {
     private final ImageRepository imageRepository;
 
 
-    public ReviewResponseDto registerReview(ReviewRegisterRequestDto requestDto) {
+    public ReviewResponseDto registerReview(ReviewRequestDto requestDto) {
 
         Content content = contentRepository.findById(requestDto.getContentId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 콘텐츠입니다."));
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.CONTENT_NOT_FOUND));
 
         User user = userRepository.findById(requestDto.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
 
         Image image = imageRepository.findByUrl(requestDto.getImageUrl())
-                .orElse(null); // 이미지가 존재하지 않으면 null 허용
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.FAIL_IMAGE_CONVERT));
 
-        Review review = Review.builder()
-                .content(content)
-                .user(user)
-                .image(image)
-                .description(requestDto.getDescription())
-                .url(requestDto.getUrl())
-                .rating(requestDto.getRating())
-                .build();
 
-        return convertToDto(reviewRepository.save(review));
+        try {
+            Review review = Review.builder()
+                    .content(content)
+                    .user(user)
+                    .image(image)
+                    .description(requestDto.getDescription())
+                    .url(requestDto.getUrl())
+                    .build();
+            return convertToDto(reviewRepository.save(review));
+        } catch (Exception e) {
+            throw new BaseException(BaseResponseStatus.FAIL_REVIEW_POST); // 5xx (서버 문제)
+        }
     }
 
     /**
@@ -60,6 +63,11 @@ public class ReviewService {
      */
     @Transactional(readOnly = true)
     public ReviewListResponseDto getReviewsByContentId(Long contentId) {
+
+        if (!contentRepository.existsById(contentId)) { // 404
+            throw new BaseException(BaseResponseStatus.CONTENT_NOT_FOUND);
+        }
+
         List<ReviewSummaryDto> reviewList = reviewRepository.findByContentId(contentId)
                 .stream()
                 .map(this::convertToSummaryDto)
@@ -75,29 +83,23 @@ public class ReviewService {
     @Transactional(readOnly = true)
     public ReviewSummaryDto getReviewById(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException(BaseResponseStatus.INVALID_REQUEST.getMessage()));
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_REVIEW)); // 4xx
         return convertToSummaryDto(review);
     }
 
     /**
      * 리뷰 수정
      */
-    public ReviewResponseDto updateReview(Long reviewId, ReviewUpdateRequestDto requestDTO) {
+    public ReviewResponseDto updateReview(Long reviewId, ReviewRequestDto requestDTO) {
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException(BaseResponseStatus.INVALID_REQUEST.getMessage()));
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_REVIEW)); // 4xx
 
-        review.updateReview(requestDTO.getUrl(), requestDTO.getDescription(), requestDTO.getRating());
-
-
-        return new ReviewResponseDto(
-                review.getId(),
-                review.getContent().getId(),
-                review.getImage() != null ? review.getImage().getId() : null,
-                review.getUser().getId(),
-                review.getUrl(),
-                review.getDescription(),
-                review.getRating()
-        );
+        try {
+            review.updateReview(requestDTO.getUrl(), requestDTO.getDescription());
+            return convertToDto(review);
+        } catch (Exception e) {
+            throw new BaseException(BaseResponseStatus.FAIL_REVIEW_POST); // 5xx
+        }
     }
 
 
@@ -106,9 +108,12 @@ public class ReviewService {
      */
     public void deleteReview(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException(BaseResponseStatus.INVALID_REQUEST.getMessage()));
-
-        reviewRepository.delete(review);
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_REVIEW)); // 4xx
+        try {
+            reviewRepository.delete(review);
+        } catch (Exception e) {
+            throw new BaseException(BaseResponseStatus.DATABASE_INSERT_ERROR); // 5xx
+        }
     }
 
     private ReviewResponseDto convertToDto(Review review) {
@@ -119,7 +124,7 @@ public class ReviewService {
                 review.getUser().getId(),
                 review.getUrl(),
                 review.getDescription(),
-                review.getRating()
+                review.getRatingAverage()
         );
     }
 
@@ -129,7 +134,7 @@ public class ReviewService {
                 review.getContent().getId(),
                 review.getUser().getId(),
                 review.getImage() != null ? review.getImage().getId() : null,
-                review.getRating(),
+                review.getRatingAverage(),
                 review.getCreatedAt().toString(),
                 review.getUpdatedAt().toString()
         );

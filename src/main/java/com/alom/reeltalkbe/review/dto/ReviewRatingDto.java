@@ -1,21 +1,15 @@
 package com.alom.reeltalkbe.review.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReviewSummaryDto {
-
-    private Long reviewId;
-    private Long contentId;
+public class ReviewRatingDto {
+    private Integer rating;
+    private Long ReviewId;
     private Long userId;
-    private Long imageId;
-
-    private Float rating;
-    private String createAt;
-    private String updateAt;
 }
