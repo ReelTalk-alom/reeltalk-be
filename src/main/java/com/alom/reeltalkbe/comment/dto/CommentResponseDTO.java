@@ -19,13 +19,12 @@ public class CommentResponseDTO {
     private User user;
     private Review review;
     private String content;
-    private int rating;
+
 
     public CommentResponseDTO(Comment comment) {
         id = comment.getId();
         user = comment.getUser();
         review = comment.getReview();
         content = comment.getContent();
-        rating = comment.getRating();
     }
 }

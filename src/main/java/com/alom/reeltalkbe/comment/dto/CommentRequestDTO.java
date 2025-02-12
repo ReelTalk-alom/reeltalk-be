@@ -9,10 +9,9 @@ import lombok.Setter;
 public class CommentRequestDTO {
 
     private String content;
-    private int rating;
+
 
     public CommentRequestDTO(Comment comment) {
         this.content = comment.getContent();
-        this.rating = comment.getRating();
     }
 }

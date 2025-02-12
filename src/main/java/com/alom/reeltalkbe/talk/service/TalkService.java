@@ -29,6 +29,8 @@ public class TalkService {
         talkMessageDto.setUser(userRepository.findById(talkMessageDto.getUserId())
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER)));
 
+
+
         return talkMessageRepository.save(
                 TalkMessage.of(
                         talkMessageDto,
