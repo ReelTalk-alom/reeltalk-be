@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/reviews")
+@RequestMapping("/api/review")
 @RequiredArgsConstructor
 public class ReviewRatingController {
 
@@ -15,6 +15,7 @@ public class ReviewRatingController {
 
     /**
      * 리뷰 평점 등록 or 수정
+     * 코드 합치는거 고려
      */
     @PostMapping("/rate")
     public ResponseEntity<String> rateReview(@RequestBody ReviewRatingDto reviewRatingDto) {
