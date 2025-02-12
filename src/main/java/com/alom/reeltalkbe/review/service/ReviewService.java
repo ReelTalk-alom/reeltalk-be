@@ -93,7 +93,7 @@ public class ReviewService {
                 review.getId(),
                 review.getContent().getId(),
                 review.getImage() != null ? review.getImage().getId() : null,
-                review.getUser().getUserId(),
+                review.getUser().getId(),
                 review.getUrl(),
                 review.getDescription(),
                 review.getRating()
@@ -116,7 +116,7 @@ public class ReviewService {
                 review.getId(),
                 review.getContent().getId(),
                 review.getImage() != null ? review.getImage().getId() : null,
-                review.getUser().getUserId(),
+                review.getUser().getId(),
                 review.getUrl(),
                 review.getDescription(),
                 review.getRating()
@@ -127,7 +127,7 @@ public class ReviewService {
         return new ReviewSummaryDto(
                 review.getId(),
                 review.getContent().getId(),
-                review.getUser().getUserId(),
+                review.getUser().getId(),
                 review.getImage() != null ? review.getImage().getId() : null,
                 review.getRating(),
                 review.getCreatedAt().toString(),

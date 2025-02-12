@@ -57,6 +57,12 @@ public class UserController {
         String url = userService.getProfileImage();
         return new BaseResponse<>(url);
     }
+//
+//    @DeleteMapping
+//    public BaseResponse<String> deleteUser() {
+//        userService.deleteUser();
+//        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+//    }
 
     // test
 //    @GetMapping("/me")

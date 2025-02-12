@@ -68,7 +68,7 @@ public class CommentService {
         User user = userRepsoitory.findById(userId)
                 .orElseThrow(() -> new  BaseException(BaseResponseStatus.NON_EXIST_USER));
 
-        if (comment.getUser().getUserId().equals(user.getUserId())) {
+        if (comment.getUser().getId().equals(user.getId())) {
             throw new BaseException(BaseResponseStatus.INVALID_MEMBER);
         }
 
@@ -84,7 +84,7 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                         .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_COMMENT));
 
-        if (comment.getUser().getUserId().equals(user.getUserId())) {
+        if (comment.getUser().getId().equals(user.getId())) {
             throw new BaseException(BaseResponseStatus.INVALID_MEMBER);
         }
         commentRepository.deleteById(commentId);

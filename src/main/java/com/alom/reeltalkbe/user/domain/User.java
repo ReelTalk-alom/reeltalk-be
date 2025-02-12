@@ -9,7 +9,6 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Getter
-//@Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "user")  // 실제 DB 테이블 이름
@@ -17,7 +16,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)  // 자동 증가 ID
-    private Long userId;  // ERD 기준: user_id
+    private Long id;  // ERD 기준: user_id
 
     @Column(nullable = false, unique = true)
     private String email;  // ERD 기준: email
@@ -46,7 +45,7 @@ public class User {
 
     @Builder
     public User(Long id, String email, String password, String username, String role) {
-        this.userId = id;
+        this.id = id;
         this.email = email;
         this.password = password;
         this.username = username;

@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/users/signup").permitAll()
                         .requestMatchers("/api/users/login").permitAll()
+                        //.anyRequest().authenticated()
                         .anyRequest().permitAll()
                 )
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
@@ -60,12 +61,5 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-//    @Bean
-//    public LoginFilter loginFilter() throws Exception {
-//        LoginFilter loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil);
-//        loginFilter.setFilterProcessesUrl("/api/users/login");
-//        return loginFilter;
-//    }
 
 }
