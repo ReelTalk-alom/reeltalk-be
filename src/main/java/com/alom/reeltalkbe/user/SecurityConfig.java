@@ -39,13 +39,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/h2-console/**", "/api/users/signup", "/api/users/login", "/mypage/**")
-                )
+//                .csrf(csrf -> csrf
+//                        .ignoringRequestMatchers("/h2-console/**", "/api/users/signup", "/api/users/login", "/mypage/**")
+//                )
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/users/signup").permitAll()
                         .requestMatchers("/api/users/login").permitAll()
+                        //.anyRequest().authenticated()
                         .anyRequest().permitAll()
                 )
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
@@ -59,12 +61,5 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-//    @Bean
-//    public LoginFilter loginFilter() throws Exception {
-//        LoginFilter loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil);
-//        loginFilter.setFilterProcessesUrl("/api/users/login");
-//        return loginFilter;
-//    }
 
 }

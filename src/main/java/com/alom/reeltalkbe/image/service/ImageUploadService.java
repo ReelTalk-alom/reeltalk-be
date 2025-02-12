@@ -45,13 +45,8 @@ public class ImageUploadService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
         }
 
-        String url = amazonS3.getUrl(bucket, fileName).toString();
-        Image image = Image.builder()
-                .url(url)
-                .build();
-        imageRepository.save(image);
-
-        return url;
+        // return image url
+        return amazonS3.getUrl(bucket, fileName).toString();
     }
 
     // 파일명을 난수화하기 위해 UUID 를 활용하여 난수를 돌린다.
@@ -69,7 +64,11 @@ public class ImageUploadService {
     }
 
 
-    public String deleteFile(String fileName) {
+    public void deleteFile(String url) {
+
+        // S3에서 파일명 추출 (URL에서 파일명 추출하는 로직 필요)
+        String fileName = extractFileNameFromUrl(url);
+
         System.out.println("삭제 요청 파일명: " + fileName);
 
         // S3에 파일이 존재하는지 확인
@@ -80,10 +79,13 @@ public class ImageUploadService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "파일이 존재하지 않습니다: " + fileName);
         }
 
-        String originUrl = amazonS3.getUrl(bucket, fileName).toString();
-
+        // S3에서 파일 삭제
         amazonS3.deleteObject(new DeleteObjectRequest(bucket, fileName));
+
         System.out.println("삭제 완료: " + fileName);
-        return originUrl;
+    }
+
+    private String extractFileNameFromUrl(String fileUrl) {
+        return fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
     }
 }

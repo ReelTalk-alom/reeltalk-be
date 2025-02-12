@@ -28,15 +28,14 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         System.out.println("doFilterInternal");
-        String requestURI = request.getRequestURI();
 
+//        String requestURI = request.getRequestURI();
 //        // 회원가입 & 로그인 요청은 필터 적용 안 함
 //        if (requestURI.equals("/api/users/signup") || requestURI.equals("/api/users/login")) {
 //            filterChain.doFilter(request, response);
 //            return;
 //        }
 
-        // 요청 Body에서 JSON 파싱해서 "token" 값 가져오기
         String token = extractToken(request);
 
         // 토큰이 없으면 그대로 필터 체인 실행
@@ -55,18 +54,21 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 토큰에서 username과 role 가져오기
+        // 토큰에서 userId, username과 role 가져오기
+        Long userId = jwtUtil.getUserId(token);
         String username = jwtUtil.getUsername(token);
         String role = jwtUtil.getRole(token);
 
-        // userEntity 객체 생성 및 값 설정
-        User userEntity = new User();
-        userEntity.setUsername(username);
-        userEntity.setPassword("temppassword");
-        userEntity.setRole(role);
+        User user = User.builder()
+                .id(userId)
+                .username(username)
+                .password("temppassword")
+                .role(role)
+                .email("tempemail")
+                .build();
 
         // UserDetails 생성
-        CustomUserDetails customUserDetails = new CustomUserDetails(userEntity);
+        CustomUserDetails customUserDetails = new CustomUserDetails(user);
 
         // 스프링 시큐리티 인증 토큰 생성
         Authentication authToken = new UsernamePasswordAuthenticationToken(
