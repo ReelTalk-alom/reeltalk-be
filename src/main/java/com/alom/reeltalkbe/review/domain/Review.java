@@ -41,8 +41,8 @@ public class Review extends BaseEntity {
     private String description;
     private String url;
 
-    private int ratingCount=0;
-    private int ratingSum=0;
+    private Double ratingCount=0.0;
+    private Double ratingSum=0.0;
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
