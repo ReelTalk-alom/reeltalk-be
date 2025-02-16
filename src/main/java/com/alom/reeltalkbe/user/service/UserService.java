@@ -6,11 +6,15 @@ import com.alom.reeltalkbe.image.service.ImageUploadService;
 import com.alom.reeltalkbe.user.domain.User;
 import com.alom.reeltalkbe.user.dto.CustomUserDetails;
 import com.alom.reeltalkbe.user.dto.JoinDto;
+import com.alom.reeltalkbe.user.repository.RefreshRepository;
 import com.alom.reeltalkbe.user.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
@@ -21,12 +25,14 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final ImageUploadService imageUploadService;
+    private final RefreshRepository refreshRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, ImageUploadService imageUploadService) {
+    public UserService(UserRepository userRepository, ImageUploadService imageUploadService, RefreshRepository refreshRepository) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
         this.imageUploadService = imageUploadService;
+        this.refreshRepository = refreshRepository;
     }
 
     // 회원가입 기능
@@ -53,6 +59,25 @@ public class UserService {
         // 회원 저장
         return userRepository.save(user);
     }
+
+    @Transactional
+    public void deleteUser(Long userId, HttpServletResponse response) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        // 🔥 username을 기준으로 refresh token 삭제
+        refreshRepository.deleteByUsername(user.getUsername());
+
+        // 🔥 Refresh 토큰 쿠키 삭제
+        Cookie cookie = new Cookie("refresh", null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
+        // 🔥 회원 데이터 삭제
+        userRepository.delete(user);
+    }
+
 
     public String uploadProfileImage(MultipartFile multipartFile) {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
