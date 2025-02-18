@@ -10,8 +10,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReviewResponseDto {
-
+public class CommentListResponseDto {
     private Long reviewId;
     private Long contentId;
     private Long imageId;
@@ -21,4 +20,5 @@ public class ReviewResponseDto {
     private String description;
     private double ratingAverage;
 
+    private List<CommentSummaryDto> comments;
 }

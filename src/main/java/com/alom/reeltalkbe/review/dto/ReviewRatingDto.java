@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReviewRatingDto {
+
     private Integer rating;
-    private Long ReviewId;
-    private Long userId;
+
 }

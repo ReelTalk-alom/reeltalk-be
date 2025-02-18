@@ -9,12 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ReviewRequestDto {
 
-    private Long reviewId;
+
     private Long contentId;
-    private Long userId;
+    private Long imageId;
 
     private String description;
     private String url;
-    private String imageUrl;
-
 }
