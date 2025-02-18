@@ -15,6 +15,7 @@ import com.alom.reeltalkbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -47,6 +48,10 @@ public class LikeService {
                 .comment(comment)
                 .build();
 
+        List<Like> likes = likeRepository.findByComment(comment);
+        int likeCount = likes.size();
+        comment.updateLikeCount(++likeCount);
+
         return new LikeDTO(like);
     }
 
@@ -66,6 +71,11 @@ public class LikeService {
         if(likeRepository.findByUserAndComment(user, comment).isEmpty()){
             throw new BaseException(BaseResponseStatus.RATING_NOT_FOUND);
         }
+
+        List<Like> likes = likeRepository.findByComment(comment);
+        int likeCount = likes.size();
+        comment.updateLikeCount(--likeCount);
+
         Like like = likeRepository.findByUserAndComment(user, comment).get();
         likeRepository.deleteById(like.getId());
     }

@@ -25,14 +25,18 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "review_id")
     private Review review;
 
+    private int likeCount;
 
     private String content;
 
 
 
 
-    public void update(String content) {
+    public void updateContnet(String content) {
         this.content = content;
+    }
+    public void updateLikeCount(int likeCount){
+        this.likeCount = likeCount;
     }
 
 

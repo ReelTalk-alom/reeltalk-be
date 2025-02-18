@@ -63,6 +63,7 @@ public class CommentService {
                 .user(user)
                 .review(review)
                 .content(commentParamDTO.getContent())
+                .likeCount(0)
                 .build();
 
         return new CommentResponseDTO(commentRepository.save(comment));
@@ -89,7 +90,7 @@ public class CommentService {
             throw new BaseException(BaseResponseStatus.INVALID_REVIEW);
         }
 
-        comment.update(commentRequestDTO.getContent());
+        comment.updateContnet(commentRequestDTO.getContent());
         return new CommentResponseDTO(commentRepository.save(comment));
 
     }
