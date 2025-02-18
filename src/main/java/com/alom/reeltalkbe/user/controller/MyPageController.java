@@ -1,3 +1,4 @@
+/*
 package com.alom.reeltalkbe.user.controller;
 
 import com.alom.reeltalkbe.review.dto.response.ReviewResponseDto;
@@ -20,9 +21,11 @@ public class MyPageController {
     private final UserService userService;
     private final ReviewService reviewService;
 
-    /**
+    */
+/**
      * 마이페이지 정보 조회 (유저 프로필 + 리뷰 목록 + 베스트 리뷰)
-     */
+     *//*
+
     @GetMapping("/{userId}")
     public BaseResponse<Map<String, Object>> getMyPage(@PathVariable Long userId) {
         Map<String, Object> response = new HashMap<>();
@@ -60,3 +63,4 @@ public class MyPageController {
         return new BaseResponse<>(bestReview);
     }
 }
+*/
