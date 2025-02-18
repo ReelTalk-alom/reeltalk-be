@@ -1,8 +1,11 @@
 package com.alom.reeltalkbe.review.dto.response;
 
+import com.alom.reeltalkbe.review.dto.response.summary.CommentSummaryDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -16,5 +19,6 @@ public class ReviewResponseDto {
 
     private String url;
     private String description;
-    private Double rating;
+    private double ratingAverage;
+
 }

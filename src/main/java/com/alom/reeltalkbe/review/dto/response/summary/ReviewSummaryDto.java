@@ -1,4 +1,4 @@
-package com.alom.reeltalkbe.review.dto.response;
+package com.alom.reeltalkbe.review.dto.response.summary;
 
 
 import lombok.AllArgsConstructor;
@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 public class ReviewSummaryDto {
 
     private Long reviewId;
-    private Long contentId;
     private Long userId;
     private Long imageId;
 
