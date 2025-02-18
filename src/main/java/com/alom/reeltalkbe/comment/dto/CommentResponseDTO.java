@@ -28,5 +28,6 @@ public class CommentResponseDTO {
         userImg = comment.getUser().getField();
         review = comment.getReview();
         content = comment.getContent();
+        likeCount = comment.getLikeCount();
     }
 }

@@ -48,9 +48,11 @@ public class LikeService {
                 .comment(comment)
                 .build();
 
+        likeRepository.save(like);
+
         List<Like> likes = likeRepository.findByComment(comment);
         int likeCount = likes.size();
-        comment.updateLikeCount(++likeCount);
+        comment.updateLikeCount(likeCount);
 
         return new LikeDTO(like);
     }
@@ -72,11 +74,12 @@ public class LikeService {
             throw new BaseException(BaseResponseStatus.RATING_NOT_FOUND);
         }
 
-        List<Like> likes = likeRepository.findByComment(comment);
-        int likeCount = likes.size();
-        comment.updateLikeCount(--likeCount);
 
         Like like = likeRepository.findByUserAndComment(user, comment).get();
         likeRepository.deleteById(like.getId());
+
+        List<Like> likes = likeRepository.findByComment(comment);
+        int likeCount = likes.size();
+        comment.updateLikeCount(likeCount);
     }
 }
