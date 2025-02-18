@@ -1,4 +1,4 @@
-package com.alom.reeltalkbe.comment.entity;
+package com.alom.reeltalkbe.comment.domain;
 
 import com.alom.reeltalkbe.common.BaseEntity;
 import com.alom.reeltalkbe.review.domain.Review;
@@ -24,6 +24,7 @@ public class Comment extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "review_id")
     private Review review;
+
 
     private String content;
 

@@ -1,6 +1,6 @@
 package com.alom.reeltalkbe.comment.dto;
 
-import com.alom.reeltalkbe.comment.entity.Comment;
+import com.alom.reeltalkbe.comment.domain.Comment;
 import lombok.Getter;
 import lombok.Setter;
 
