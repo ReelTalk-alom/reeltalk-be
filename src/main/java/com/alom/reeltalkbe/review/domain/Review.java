@@ -15,7 +15,7 @@ import java.util.List;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @Table(name = "review")
 public class Review extends BaseEntity {
 
@@ -41,8 +41,8 @@ public class Review extends BaseEntity {
     private String description;
     private String url;
 
-    private Double ratingCount=0.0;
-    private Double ratingSum=0.0;
+    private int ratingCount=0;
+    private int ratingSum=0;
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
@@ -60,7 +60,7 @@ public class Review extends BaseEntity {
     /**
      개별 평점 추가 (ReviewRating 추가)
      */
-    public void addRating(double ratingValue) {
+    public void addRating(int ratingValue) {
         this.ratingSum += ratingValue;
         this.ratingCount++;
     }
@@ -68,7 +68,7 @@ public class Review extends BaseEntity {
     /**
      * 개별 평점 제거 (ReviewRating 삭제)
      */
-    public void removeRating(double ratingValue) {
+    public void removeRating(int ratingValue) {
 
         this.ratingSum -= ratingValue;
         this.ratingCount--;
@@ -86,7 +86,10 @@ public class Review extends BaseEntity {
      *  평균 평점 계산
      */
     public double getRatingAverage() {
-        return (ratingCount == 0) ? 0.0 : (double) ratingSum / ratingCount;
+        if (ratingCount == 0)
+            return 0;
+        else
+            return  (double) ratingSum / ratingCount;
     }
 
 
