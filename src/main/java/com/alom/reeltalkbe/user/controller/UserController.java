@@ -7,6 +7,7 @@ import com.alom.reeltalkbe.user.domain.User;
 import com.alom.reeltalkbe.user.dto.CustomUserDetails;
 import com.alom.reeltalkbe.user.dto.JoinDto;
 import com.alom.reeltalkbe.user.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,6 +30,13 @@ public class UserController {
     @PostMapping("/signup")
     public BaseResponse<User> registerUser(@RequestBody JoinDto joinDto) {
         return new BaseResponse<>(userService.registerUser(joinDto));
+    }
+
+    // 회원 탈퇴
+    @DeleteMapping("/me")
+    public BaseResponse<String> deleteUser(@AuthenticationPrincipal CustomUserDetails userDetails, HttpServletResponse response) {
+        userService.deleteUser(userDetails.getUserId(), response);
+        return new BaseResponse<>("회원 탈퇴가 완료되었습니다.");
     }
 
     // admin role test

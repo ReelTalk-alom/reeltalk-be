@@ -1,9 +1,11 @@
-package com.alom.reeltalkbe.user;
+package com.alom.reeltalkbe.user.config;
 
 
+import com.alom.reeltalkbe.user.jwt.CustomLogoutFilter;
 import com.alom.reeltalkbe.user.jwt.JwtFilter;
 import com.alom.reeltalkbe.user.jwt.JwtUtil;
 import com.alom.reeltalkbe.user.jwt.LoginFilter;
+import com.alom.reeltalkbe.user.repository.RefreshRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +16,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @Configuration
 @RequiredArgsConstructor
@@ -22,6 +25,7 @@ public class SecurityConfig {
     //AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtUtil jwtUtil;
+    private final RefreshRepository refreshRepository;
 
     //AuthenticationManager Bean 등록
     @Bean
@@ -44,22 +48,21 @@ public class SecurityConfig {
 //                )
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/h2-console/**").permitAll()
+//                        .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/users/signup").permitAll()
                         .requestMatchers("/api/users/login").permitAll()
-                        //.anyRequest().authenticated()
-                        .anyRequest().permitAll()
+                        .requestMatchers("/reissue").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(formLogin -> formLogin.disable());
 
-        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
-
         http.addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
 
         return http.build();
     }
-
 }

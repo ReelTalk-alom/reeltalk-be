@@ -44,7 +44,7 @@ public class TalkService {
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.MESSAGE_NOT_FOUND));
 
         // User id 매치로 본인이 쓴 톡인지 확인하는 코드
-        if(!talkMessage.getUser().getUserId().equals(talkMessageDto.getUserId())) {
+        if(!talkMessage.getUser().getId().equals(talkMessageDto.getUserId())) {
             throw new BaseException(BaseResponseStatus.NOT_YOUR_MESSAGE);
         }
 
@@ -56,7 +56,7 @@ public class TalkService {
         TalkMessage talkMessage = talkMessageRepository.findById(talkMessageDto.getMessageId())
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.MESSAGE_NOT_FOUND));
 
-        if(!talkMessage.getUser().getUserId().equals(talkMessageDto.getUserId())) {
+        if(!talkMessage.getUser().getId().equals(talkMessageDto.getUserId())) {
             throw new BaseException(BaseResponseStatus.NOT_YOUR_MESSAGE);
         }
 
