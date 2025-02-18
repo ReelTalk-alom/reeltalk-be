@@ -22,7 +22,7 @@ public class ContentController {
         // todo : 포스터+백그라운드(가로) 이미지 두개 추가
         return new BaseResponse<>("흠, 어떡하쥥");
     }
-
+    // todo : 영화, 시리즈 탭 영화 + 리뷰 여러 개 반황
     // 컨텐츠 세부 정보 조회
     @GetMapping("/contents/{contentId}")
     public BaseResponse<Content> getContentInfo(@PathVariable Long contentId) {
@@ -37,8 +37,7 @@ public class ContentController {
                                                        @AuthenticationPrincipal CustomUserDetails userDetails) {
         // RestController = (RequestBody XXX )ResponseBody + Controller
         return new BaseResponse<>(contentService
-                // todo : userDetail에 넣을 정보: username vs user Id -> userId이 보편적(성능우위, PK 성질)
-                .addRating(contentId, userDetails.getUsername(), ratingDto));
+                .addRating(contentId, userDetails.getUserId(), ratingDto));
     }
 
     // 컨텐츠 평점 삭제
@@ -46,7 +45,7 @@ public class ContentController {
     public BaseResponse<Content> deleteContentRating(@PathVariable Long contentId,
                                                      @AuthenticationPrincipal CustomUserDetails userDetails) {
         return new BaseResponse<>(contentService
-                .deleteRating(contentId, userDetails.getUsername()));
+                .deleteRating(contentId, userDetails.getUserId()));
     }
 
 

@@ -32,7 +32,7 @@ public class TalkMessageResponseDto {
                 .message(message.getMessage())
                 .sender(message.getSender())
                 .contentId(message.getContent().getId())
-                .userId(message.getUser().getUserId())
+                .userId(message.getUser().getId())
                 .messageId(message.getId())
                 .build();
     }
@@ -46,7 +46,7 @@ public class TalkMessageResponseDto {
                             .message(message.getMessage())
                             .sender(message.getSender())
                             .contentId(message.getContent().getId())
-                            .userId(message.getUser().getUserId())
+                            .userId(message.getUser().getId())
                             .messageId(message.getId())
                             .build()
             );

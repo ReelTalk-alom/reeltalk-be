@@ -37,7 +37,6 @@ public class TalkController {
 //        return talkService.saveMessage(chatMessageDto);
 //    }
      */
-    // todo : 여기 쓰인 모든 getUser().getUserId() 코드 바꾸기 (userdetails.getUserId() 로)
 
     // rest api X, WebSocket 으로 메시지 보냈을때 broadcast 하는 메서드?
     @MessageMapping("/contents/{contentId}/talk")
@@ -46,7 +45,7 @@ public class TalkController {
                                        @Payload TalkMessageDto talkMessageDto,
                                        @AuthenticationPrincipal CustomUserDetails userDetails) {
         talkMessageDto.setContentId(contentId);
-        talkMessageDto.setUserId(userDetails.getUser().getUserId());
+        talkMessageDto.setUserId(userDetails.getUserId());
         TalkMessage savedMessage = talkService.saveTalkMessage(talkMessageDto);
         // WebSocket을 통해 실시간 전송
         messagingTemplate.convertAndSend("/topic/" + contentId + "/messages", savedMessage);
@@ -66,7 +65,7 @@ public class TalkController {
                             @RequestBody TalkMessageDto talkMessageDto,
                             @AuthenticationPrincipal CustomUserDetails userDetails) {
         talkMessageDto.setContentId(contentId);
-        talkMessageDto.setUserId(userDetails.getUser().getUserId()); // todo : 코드 바꾸기 (userdetails.getUserId() 로)
+        talkMessageDto.setUserId(userDetails.getUserId());
         talkMessageDto.setSender(userDetails.getUsername());
         TalkMessage savedMessage = talkService.saveTalkMessage(talkMessageDto);
         // WebSocket을 통해 실시간 전송
@@ -82,7 +81,7 @@ public class TalkController {
                                      @AuthenticationPrincipal CustomUserDetails userDetails) {
         updatedMessageDto.setContentId(contentId);
         updatedMessageDto.setMessageId(messageId);
-        updatedMessageDto.setUserId(userDetails.getUser().getUserId());
+        updatedMessageDto.setUserId(userDetails.getUserId());
         TalkMessage updatedTalkMessage = talkService.updateTalkMessage(updatedMessageDto);
 
         // WebSocket을 통해 실시간 전송
@@ -100,7 +99,7 @@ public class TalkController {
                 TalkMessageDto
                         .builder()
                         .messageId(messageId)
-                        .userId(userDetails.getUser().getUserId())
+                        .userId(userDetails.getUserId())
                         .build()
         );
         // WebSocket을 통해 메시지 삭제 알림 전송
