@@ -1,9 +1,8 @@
 package com.alom.reeltalkbe.comment.dto;
 
 
-import com.alom.reeltalkbe.comment.entity.Comment;
+import com.alom.reeltalkbe.comment.domain.Comment;
 import com.alom.reeltalkbe.review.domain.Review;
-import com.alom.reeltalkbe.user.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,15 +15,19 @@ import lombok.Setter;
 public class CommentResponseDTO {
 
     private Long id;
-    private User user;
+    private String user;
+    private String userImg;
     private Review review;
     private String content;
+    private int likeCount;
 
 
     public CommentResponseDTO(Comment comment) {
         id = comment.getId();
-        user = comment.getUser();
+        user = comment.getUser().getUsername();
+        userImg = comment.getUser().getField();
         review = comment.getReview();
         content = comment.getContent();
+        likeCount = comment.getLikeCount();
     }
 }

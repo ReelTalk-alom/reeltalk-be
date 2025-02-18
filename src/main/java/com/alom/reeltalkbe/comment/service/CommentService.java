@@ -3,8 +3,9 @@ package com.alom.reeltalkbe.comment.service;
 
 import com.alom.reeltalkbe.comment.dto.CommentResponseDTO;
 import com.alom.reeltalkbe.comment.dto.CommentRequestDTO;
-import com.alom.reeltalkbe.comment.entity.Comment;
+import com.alom.reeltalkbe.comment.domain.Comment;
 import com.alom.reeltalkbe.comment.repository.CommentRepository;
+import com.alom.reeltalkbe.comment.repository.LikeRepository;
 import com.alom.reeltalkbe.common.exception.BaseException;
 import com.alom.reeltalkbe.common.response.BaseResponseStatus;
 import com.alom.reeltalkbe.review.domain.Review;
@@ -28,26 +29,7 @@ public class CommentService {
     private ReviewRepository reviewRepository;
 
     private CommentRepository commentRepository;
-
-    public CommentResponseDTO add(Long userId, Long reviewId, CommentRequestDTO commentParamDTO){
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
-
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new  BaseException(BaseResponseStatus.INVALID_REVIEW));
-
-
-        Comment comment = Comment.builder()
-                .user(user)
-                .review(review)
-                .content(commentParamDTO.getContent())
-                .build();
-
-        return new CommentResponseDTO(commentRepository.save(comment));
-    }
-
-
+    private LikeRepository likeRepository;
 
     @Transactional(readOnly = true)
     public List<CommentResponseDTO> getByReview(long reviewId){
@@ -63,42 +45,7 @@ public class CommentService {
 
     }
 
-    public CommentResponseDTO update(Long userId, Long commentId, CommentRequestDTO commentRequestDTO) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_COMMENT));
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new  BaseException(BaseResponseStatus.NON_EXIST_USER));
-
-        if (comment.getUser().getId().equals(user.getId())) {
-            throw new BaseException(BaseResponseStatus.INVALID_MEMBER);
-        }
-
-        comment.update(commentRequestDTO.getContent());
-        return new CommentResponseDTO(commentRepository.save(comment));
-
-    }
-
-
-
-    public void delete(Long userId, Long commentId){
-        User user = userRepository.findById(userId)
-                        .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
-
-        Comment comment = commentRepository.findById(commentId)
-                        .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_COMMENT));
-
-        if (comment.getUser().getId().equals(user.getId())) {
-            throw new BaseException(BaseResponseStatus.INVALID_MEMBER);
-        }
-        commentRepository.deleteById(commentId);
-    }
-
-    /**
-     * CustomUserDetails getUserId 추가 후 사용 예정
-     */
-
-    /*public CommentResponseDTO add(CustomUserDetails userDetails, Long reviewId, CommentRequestDTO commentParamDTO){
+    public CommentResponseDTO add(CustomUserDetails userDetails, Long reviewId, CommentRequestDTO commentParamDTO){
         if(userDetails == null){
             throw new BaseException(BaseResponseStatus.FAIL_TOKEN_AUTHORIZATION);
         }
@@ -116,18 +63,18 @@ public class CommentService {
                 .user(user)
                 .review(review)
                 .content(commentParamDTO.getContent())
+                .likeCount(0)
                 .build();
 
         return new CommentResponseDTO(commentRepository.save(comment));
     }
 
-    public CommentResponseDTO update(CustomUserDetails userDetails, Long commentId, CommentRequestDTO commentRequestDTO) {
+    public CommentResponseDTO update(CustomUserDetails userDetails, Long commentId, Long reviewId, CommentRequestDTO commentRequestDTO) {
         if(userDetails == null){
             throw new BaseException(BaseResponseStatus.FAIL_TOKEN_AUTHORIZATION);
         }
 
         Long userId = userDetails.getUserId();
-
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new  BaseException(BaseResponseStatus.NON_EXIST_USER));
@@ -136,16 +83,19 @@ public class CommentService {
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_COMMENT));
 
 
-        if (comment.getUser().getUserId().equals(user.getUserId())) {
+        if (!comment.getUser().getId().equals(user.getId())) {
             throw new BaseException(BaseResponseStatus.INVALID_MEMBER);
         }
+        if (!comment.getReview().getId().equals(reviewId)) {
+            throw new BaseException(BaseResponseStatus.INVALID_REVIEW);
+        }
 
-        comment.update(commentRequestDTO.getContent());
+        comment.updateContnet(commentRequestDTO.getContent());
         return new CommentResponseDTO(commentRepository.save(comment));
 
     }
 
-    public void delete(CustomUserDetails userDetails, Long commentId){
+    public void delete(CustomUserDetails userDetails, Long commentId, Long reviewId){
         if(userDetails == null){
             throw new BaseException(BaseResponseStatus.FAIL_TOKEN_AUTHORIZATION);
         }
@@ -158,9 +108,12 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_COMMENT));
 
-        if (comment.getUser().getUserId().equals(user.getUserId())) {
+        if (comment.getUser().getId().equals(user.getId())) {
             throw new BaseException(BaseResponseStatus.INVALID_MEMBER);
         }
+        if (!comment.getReview().getId().equals(reviewId)) {
+            throw new BaseException(BaseResponseStatus.INVALID_REVIEW);
+        }
         commentRepository.deleteById(commentId);
-    }*/
+    }
 }
