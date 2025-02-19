@@ -1,7 +1,7 @@
 package com.alom.reeltalkbe.review.service;
 
 
-import com.alom.reeltalkbe.comment.entity.Comment;
+import com.alom.reeltalkbe.comment.domain.Comment;
 import com.alom.reeltalkbe.common.exception.BaseException;
 import com.alom.reeltalkbe.common.response.BaseResponseStatus;
 import com.alom.reeltalkbe.content.domain.Content;
