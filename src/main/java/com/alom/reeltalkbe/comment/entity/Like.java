@@ -1,4 +1,4 @@
-package com.alom.reeltalkbe.comment.domain;
+package com.alom.reeltalkbe.comment.entity;
 
 import com.alom.reeltalkbe.common.BaseEntity;
 import com.alom.reeltalkbe.user.domain.User;
@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Entity
+@Table(name = "user_like")
 @Builder
 @Getter
 @AllArgsConstructor
@@ -16,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class Like extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
 

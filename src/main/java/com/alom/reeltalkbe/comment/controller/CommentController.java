@@ -26,10 +26,10 @@ public class CommentController {
 
     @PostMapping("/reviews/{reviewId}")
     public BaseResponse<?> postComment(@PathVariable(required = true, name = "reviewId") Long reviewId,
-                                       @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                       @AuthenticationPrincipal CustomUserDetails userDetails,
                                        @RequestBody CommentRequestDTO commentRequestDTO){
 
-        return new BaseResponse<>(commentService.add(customUserDetails, reviewId, commentRequestDTO));
+        return new BaseResponse<>(commentService.add(userDetails, reviewId, commentRequestDTO));
 
     }
 
@@ -37,22 +37,28 @@ public class CommentController {
     @PutMapping("/reviews/{reviewId}")
     public BaseResponse<?> updateComment(@PathVariable(required = true, name = "reviewId") Long reviewId,
                                          @RequestParam(required = true, name = "commentId") Long commentId,
-                                         @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                         @AuthenticationPrincipal CustomUserDetails userDetails,
                                          @RequestBody CommentRequestDTO commentRequestDTO){
 
-        return new BaseResponse<>(commentService.update(customUserDetails, commentId, reviewId, commentRequestDTO));
+        return new BaseResponse<>(commentService.update(userDetails, commentId, reviewId, commentRequestDTO));
 
     }
 
 
     @DeleteMapping("/reviews/{reviewId}")
     public BaseResponse<?> deleteComment(@PathVariable(required = true, name = "reviewId") Long reviewId,
-                                         @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                         @AuthenticationPrincipal CustomUserDetails userDetails,
                                          @RequestParam(required = true, name = "commentId") Long commentId) {
 
-        commentService.delete(customUserDetails, commentId, reviewId);
+        commentService.delete(userDetails, commentId, reviewId);
         return new BaseResponse<>(BaseResponseStatus.SUCCESS);
 
+    }
+
+    @PostMapping("/{commentId}")
+    public BaseResponse<?> updateLike(@PathVariable(required = true, name="commentId") Long commentId,
+                                      @AuthenticationPrincipal CustomUserDetails userDetails){
+        return new BaseResponse<>(commentService.updateLike(userDetails, commentId));
     }
 
     
