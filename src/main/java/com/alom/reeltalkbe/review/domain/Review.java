@@ -1,6 +1,6 @@
 package com.alom.reeltalkbe.review.domain;
 
-import com.alom.reeltalkbe.comment.entity.Comment;
+import com.alom.reeltalkbe.comment.domain.Comment;
 import com.alom.reeltalkbe.common.BaseEntity;
 import com.alom.reeltalkbe.content.domain.Content;
 import com.alom.reeltalkbe.image.domain.Image;
