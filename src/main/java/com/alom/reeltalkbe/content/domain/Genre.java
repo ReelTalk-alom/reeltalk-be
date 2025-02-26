@@ -1,4 +1,4 @@
-package com.alom.reeltalkbe.content.domain.TMDB;
+package com.alom.reeltalkbe.content.domain;
 
 import lombok.*;
 
@@ -9,6 +9,6 @@ import jakarta.persistence.Embeddable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Genre {
-    private int id;
+    private Integer id;
     private String name;
 }
