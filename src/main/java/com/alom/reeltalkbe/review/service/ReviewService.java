@@ -91,10 +91,10 @@ public class ReviewService {
 
         return new ReviewListResponseDto(
                 content.getId(),
-                content.getTitle(),
-                content.getGenre(),
-                content.getNation(),
-                content.getReleased_at().toString(),
+                content.getEnTitle(),           // 위승재 : content 엔티티 변경으로 인한 오류 해결
+                content.getGenres().toString(),
+                content.getCountry(),
+                content.getReleaseDate(),
                 content.getRatingAverage(),
                 reviewPage.getContent(),  // 페이지 내부 데이터 리스트
                 reviewPage.getTotalPages(),  // 전체 페이지 개수
