@@ -38,7 +38,6 @@
 
             List<Comment> comments = commentRepository.findByReview(review);
 
-
             return (List<CommentResponseDTO>) comments.stream()
                     .map(CommentResponseDTO::new)
                     .collect(Collectors.toList());
