@@ -1,6 +1,7 @@
 package com.alom.reeltalkbe.user.jwt;
 
 import com.alom.reeltalkbe.common.response.BaseResponse;
+import com.alom.reeltalkbe.common.response.BaseResponseStatus;
 import com.alom.reeltalkbe.user.domain.RefreshEntity;
 import com.alom.reeltalkbe.user.dto.CustomUserDetails;
 import com.alom.reeltalkbe.user.repository.RefreshRepository;
@@ -119,10 +120,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
+
+        BaseResponse<?> responseBody = new BaseResponse<>(BaseResponseStatus.NON_EXIST_USER);
+
         try {
-            objectMapper.writeValue(response.getWriter(), Map.of(
-                    "error", "로그인 실패: " + failed.getMessage()
-            ));
+            objectMapper.writeValue(response.getWriter(), responseBody);
         } catch (IOException e) {
             throw new RuntimeException("로그인 실패 응답 JSON 변환 중 오류 발생", e);
         }
