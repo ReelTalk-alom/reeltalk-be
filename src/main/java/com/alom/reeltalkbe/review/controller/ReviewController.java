@@ -3,6 +3,7 @@ package com.alom.reeltalkbe.review.controller;
 import com.alom.reeltalkbe.common.exception.BaseException;
 import com.alom.reeltalkbe.common.response.BaseResponse;
 import com.alom.reeltalkbe.common.response.BaseResponseStatus;
+import com.alom.reeltalkbe.review.domain.reviewLike.LikeType;
 import com.alom.reeltalkbe.review.dto.*;
 import com.alom.reeltalkbe.review.dto.response.CommentListResponseDto;
 import com.alom.reeltalkbe.review.dto.response.ReviewListResponseDto;
@@ -18,7 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/review")
+@RequestMapping("/api/reviews")
 @RequiredArgsConstructor
 @Slf4j
 public class ReviewController {
@@ -37,8 +38,6 @@ public class ReviewController {
         }
 
         Long userId = userDetails.getUserId();
-
-
         ReviewResponseDto responseDTO = reviewService.registerReview(userId, requestDTO);
         return new BaseResponse<>(responseDTO);
     }
@@ -62,25 +61,7 @@ public class ReviewController {
         return new BaseResponse<>(reviewService.getReviewById(reviewId));
     }
 
-    /**
-     * 평점 남기기
-     * 그 전에도 평균 평점?
-     * 평점 남기고 본인이 남긴 평점 or 평균 평점
-     */
-    @PostMapping("/{reviewId}")
-    public BaseResponse<ReviewResponseDto> rateReview(@PathVariable Long reviewId,
-                                             @RequestBody ReviewRatingDto reviewRatingDto,
-                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        if (userDetails == null) {
-            log.info("토큰 인증 실패");
-            throw new BaseException(BaseResponseStatus.FAIL_TOKEN_AUTHORIZATION);
-        }
-
-        ReviewResponseDto reviewResponseDto = reviewService.rateReview(userDetails.getUserId(), reviewId,reviewRatingDto);
-
-        return new BaseResponse<>(reviewResponseDto);
-    }
 
     /**
      * 리뷰 수정 API
@@ -93,7 +74,6 @@ public class ReviewController {
             log.info("토큰 인증 실패");
             throw new BaseException(BaseResponseStatus.FAIL_TOKEN_AUTHORIZATION);
         }
-
         ReviewResponseDto responseDTO = reviewService.updateReview(userDetails.getUserId(), reviewId, requestDTO);
         return new BaseResponse<>(responseDTO);
     }
@@ -104,13 +84,22 @@ public class ReviewController {
     @DeleteMapping("/{reviewId}")
     public BaseResponse<ReviewResponseDto> deleteReview(@PathVariable Long reviewId,
                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
-
         if (userDetails == null) {
             log.info("토큰 인증 실패");
             throw new BaseException(BaseResponseStatus.FAIL_TOKEN_AUTHORIZATION);
         }
-
-
         return new BaseResponse<>(reviewService.deleteReview(userDetails.getUserId(), reviewId));
+    }
+
+    @PostMapping("/{reviewId}")
+    public BaseResponse<String> reactToReview(@PathVariable Long reviewId,
+                                              @RequestParam LikeType likeType,
+                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
+        if (userDetails == null) {
+            log.info("토큰 인증 실패");
+            throw new BaseException(BaseResponseStatus.FAIL_TOKEN_AUTHORIZATION);
+        }
+        reviewService.rateReview(userDetails.getUserId(), reviewId, likeType);
+        return new BaseResponse<>(likeType == LikeType.LIKE ? "좋아요 처리 완료" : " 싫어요 처리 완료");
     }
 }

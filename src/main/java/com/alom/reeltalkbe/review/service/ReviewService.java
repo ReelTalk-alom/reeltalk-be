@@ -7,17 +7,16 @@ import com.alom.reeltalkbe.common.response.BaseResponseStatus;
 import com.alom.reeltalkbe.content.domain.Content;
 import com.alom.reeltalkbe.content.repository.ContentRepository;
 import com.alom.reeltalkbe.image.domain.Image;
-import com.alom.reeltalkbe.image.repository.ImageRepository;
 import com.alom.reeltalkbe.review.domain.Review;
-import com.alom.reeltalkbe.review.domain.ReviewRating;
-import com.alom.reeltalkbe.review.dto.ReviewRatingDto;
+import com.alom.reeltalkbe.review.domain.reviewLike.LikeType;
+import com.alom.reeltalkbe.review.domain.reviewLike.ReviewLike;
 import com.alom.reeltalkbe.review.dto.ReviewRequestDto;
 import com.alom.reeltalkbe.review.dto.response.CommentListResponseDto;
 import com.alom.reeltalkbe.review.dto.response.ReviewListResponseDto;
 import com.alom.reeltalkbe.review.dto.response.ReviewResponseDto;
 import com.alom.reeltalkbe.review.dto.response.summary.CommentSummaryDto;
 import com.alom.reeltalkbe.review.dto.response.summary.ReviewSummaryDto;
-import com.alom.reeltalkbe.review.repository.ReviewRatingRepository;
+import com.alom.reeltalkbe.review.repository.ReviewLikeRepository;
 import com.alom.reeltalkbe.review.repository.ReviewRepository;
 import com.alom.reeltalkbe.user.domain.User;
 import com.alom.reeltalkbe.user.repository.UserRepository;
@@ -41,8 +40,8 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ContentRepository contentRepository;
     private final UserRepository userRepository;
-    private final ImageRepository imageRepository;
-    private final ReviewRatingRepository reviewRatingRepository;
+    private final ReviewLikeRepository reviewLikeRepository;
+
 
 
     public ReviewResponseDto registerReview(Long userId, ReviewRequestDto requestDto) {
@@ -53,23 +52,20 @@ public class ReviewService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
 
-        Image image = imageRepository.findById(requestDto.getImageId())
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.FAIL_IMAGE_CONVERT));
 
-        // 같은 userId + contentId 조합의 리뷰가 이미 존재하는지 확인
-//        boolean alreadyReviewed = reviewRepository.existsByUserIdAndContentId(userId, requestDto.getContentId());
-//        if (alreadyReviewed) {
-//            throw new BaseException(BaseResponseStatus.EXIST_REVIEW); // 409 Conflict
-//        }
 
 
         try {
+            Image image = Image.builder()
+                    .url(requestDto.getImageUrl())
+                    .build();  //imageRepository.save() 필요 없음
             Review review = Review.builder()
                     .content(content)
                     .user(user)
                     .image(image)
-                    .description(requestDto.getDescription())
-                    .url(requestDto.getUrl())
+                    .overview(requestDto.getOverview())
+                    .videoPath(requestDto.getVideoPath())
+                    .duration(requestDto.getDuration())
                     .build();
             return convertToDto(reviewRepository.save(review));
         } catch (Exception e) {
@@ -118,57 +114,46 @@ public class ReviewService {
 
         return new CommentListResponseDto(
                 review.getId(),
-                review.getContent().getId(),
-                (review.getImage() != null) ? review.getImage().getId() : null,
+                review.getUser().getUsername(),
                 review.getUser().getId(),
-                review.getUrl(),
-                review.getDescription(),
-                review.getRatingAverage(),
+                review.getOverview(),
+                review.getVideoPath(),
+                review.getCreatedAt().toString(),
+                review.getDuration(),
+                review.getImage().getUrl(),
+                review.getLikeCount(),
+                review.getHateCount(),
                 commentList  //  댓글 리스트 포함
         );
     }
 
 
     /**
-     * 리뷰 평점 등록 or 수정
+        리뷰 좋아요,싫어요 기능
      */
-    @Transactional
-    public ReviewResponseDto rateReview(Long userId, Long reviewId, ReviewRatingDto reviewRatingDto) {
+    public void rateReview(Long userId, Long reviewId, LikeType likeType) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_REVIEW));
 
-        int ratingValue = reviewRatingDto.getRating();
-
-        // 유저 & 리뷰 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_REVIEW)); // 4xx
 
-        // 기존 평점이 존재하는지 확인
-        Optional<ReviewRating> existingRating = reviewRatingRepository.findByUserAndReview(user, review);
+        Optional<ReviewLike> existingLike = reviewLikeRepository.findByUserAndReview(user, review);
 
-        try {
-            if (existingRating.isPresent()) {
-                // 기존 평점 수정 (기존 점수 제거 후 새로운 점수 추가)
-                ReviewRating rating = existingRating.get();
-                review.removeRating(rating.getRatingValue());
-                rating.setRatingValue(ratingValue);
-                review.addRating(rating.getRatingValue());
-            } else {
-                // 새로운 평점 추가
-                ReviewRating newRating = ReviewRating.builder()
-                        .user(user)
-                        .review(review)
-                        .ratingValue(ratingValue)
-                        .build();
-                reviewRatingRepository.save(newRating);
-                review.addRating(newRating.getRatingValue());
-            }
-            return convertToDto(review);
-        }catch (Exception e) {
-            throw new BaseException(BaseResponseStatus.DATABASE_INSERT_ERROR); // 5xx
+        if (existingLike.isPresent()) {
+            ReviewLike reviewLike = existingLike.get();
+            reviewLike.changeLikeType(likeType);  //  좋아요/싫어요 타입 변경
+        } else {
+            ReviewLike newLike = ReviewLike.builder()
+                    .user(user)
+                    .review(review)
+                    .likeType(likeType)
+                    .build();
+            reviewLikeRepository.save(newLike);  //  처음 누를 때는 새로 추가
         }
-
     }
+
+
 
     /**
      * 리뷰 수정
@@ -176,14 +161,17 @@ public class ReviewService {
     public ReviewResponseDto updateReview(Long userId, Long reviewId, ReviewRequestDto requestDTO) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_REVIEW)); // 4xx
-
         // 현재 로그인한 사용자가 리뷰 작성자인지 확인
         if (!review.getUser().getId().equals(userId)) {
             throw new BaseException(BaseResponseStatus.INVALID_MEMBER); // 4xx
         }
 
         try {
-            review.updateReview(requestDTO.getUrl(), requestDTO.getDescription());
+            //이미지 url 업데이트
+            review.getImage().updateIfPresent(requestDTO.getImageUrl());
+            // 리뷰 내용 및 영상 경로 업데이트 (엔티티에서 처리)
+            review.updateIfPresent(requestDTO.getVideoPath(), requestDTO.getOverview());
+
             return convertToDto(review);
         } catch (Exception e) {
             throw new BaseException(BaseResponseStatus.FAIL_REVIEW_POST); // 5xx
@@ -213,15 +201,16 @@ public class ReviewService {
     }
 
     private ReviewResponseDto convertToDto(Review review) {
-
         return new ReviewResponseDto(
                 review.getId(),
                 review.getContent().getId(),
-                (review.getImage() != null) ? review.getImage().getId() : null,
                 review.getUser().getId(),
-                review.getUrl(),
-                review.getDescription(),
-                review.getRatingAverage()
+                review.getVideoPath(),
+                review.getOverview(),
+                review.getDuration(),
+                review.getImage().getUrl(),
+                review.getLikeCount(),
+                review.getHateCount()
         );
     }
 
@@ -229,8 +218,7 @@ public class ReviewService {
         return new ReviewSummaryDto(
                 review.getId(),
                 review.getUser().getId(),
-                review.getImage() != null ? review.getImage().getId() : null,
-                review.getRatingAverage(),
+                review.getImage().getUrl(),
                 review.getCreatedAt().toString(),
                 review.getUpdatedAt().toString()
         );
@@ -241,13 +229,11 @@ public class ReviewService {
                 comment.getId(),
                 comment.getUser().getUsername(),
                 comment.getUser().getImageUrl(),
-                comment.getContent(),
-                comment.getCreatedAt().toString()
+                comment.getCreatedAt().toString(),
+                comment.getLikeCount()
         );
     }
 
-    /**
-     * 추가
-     */
+
 
 }

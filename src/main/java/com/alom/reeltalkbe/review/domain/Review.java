@@ -4,6 +4,8 @@ import com.alom.reeltalkbe.comment.domain.Comment;
 import com.alom.reeltalkbe.common.BaseEntity;
 import com.alom.reeltalkbe.content.domain.Content;
 import com.alom.reeltalkbe.image.domain.Image;
+import com.alom.reeltalkbe.review.domain.reviewLike.LikeType;
+import com.alom.reeltalkbe.review.domain.reviewLike.ReviewLike;
 import com.alom.reeltalkbe.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -11,6 +13,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -33,64 +36,61 @@ public class Review extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "image_id")
     private Image image;
 
     @Lob
-    private String description;
-    private String url;
+    private String overview;
+    private String videoPath;
+    private Long duration;
 
-    private int ratingCount=0;
-    private int ratingSum=0;
+
+
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewLike> reviewLikes = new ArrayList<>();
+
+
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
 
 
     @Builder
-    public Review(Content content, User user, Image image, String url, String description) {
+    public Review(Content content, User user, Image image, String videoPath, String overview,Long duration) {
         this.content = content;
         this.user = user;
         this.image = image;
-        this.url = url;
-        this.description = description;
+        this.videoPath = videoPath;
+        this.overview = overview;
+        this.duration = duration;
     }
 
-    /**
-     개별 평점 추가 (ReviewRating 추가)
-     */
-    public void addRating(int ratingValue) {
-        this.ratingSum += ratingValue;
-        this.ratingCount++;
-    }
 
-    /**
-     * 개별 평점 제거 (ReviewRating 삭제)
-     */
-    public void removeRating(int ratingValue) {
-
-        this.ratingSum -= ratingValue;
-        this.ratingCount--;
-    }
 
     /**
      * 리뷰 수정 메서드
      */
-    public void updateReview(String url, String description) {
-        this.url = url;
-        this.description = description;
+    public void updateIfPresent(String videoPath, String overview) {
+        if (videoPath != null && !videoPath.isEmpty()) this.videoPath = videoPath;
+        if (overview != null && !overview.isEmpty()) this.overview = overview;
     }
 
-    /**
-     *  평균 평점 계산
-     */
-    public double getRatingAverage() {
-        if (ratingCount == 0)
-            return 0;
-        else
-            return  (double) ratingSum / ratingCount;
+
+
+
+
+
+    public Long getLikeCount() {
+        return reviewLikes.stream()
+                .filter(like -> like.getLikeType() == LikeType.LIKE)
+                .count();
     }
 
+    public Long getHateCount() {
+        return reviewLikes.stream()
+                .filter(like -> like.getLikeType() == LikeType.HATE)
+                .count();
+    }
 
 }

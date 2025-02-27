@@ -14,11 +14,14 @@ public class ReviewResponseDto {
 
     private Long reviewId;
     private Long contentId;
-    private Long imageId;
+
     private Long userId;
 
-    private String url;
-    private String description;
-    private double ratingAverage;
+    private String viewPath;
+    private String overview;
 
+    private Long duration;
+    private String imageUrl;
+    private Long likeCount;
+    private Long hateCount;
 }
