@@ -114,6 +114,7 @@ public class ReviewService {
 
         return new CommentListResponseDto(
                 review.getId(),
+                review.getTitle(),
                 review.getUser().getUsername(),
                 review.getUser().getId(),
                 review.getOverview(),
@@ -217,7 +218,11 @@ public class ReviewService {
     private ReviewSummaryDto convertToReviewSummaryDto(Review review) {
         return new ReviewSummaryDto(
                 review.getId(),
+                review.getTitle(),
+                review.getUser().getUsername(),
                 review.getUser().getId(),
+                review.getOverview(),
+                review.getDuration(),
                 review.getImage().getUrl(),
                 review.getCreatedAt().toString(),
                 review.getUpdatedAt().toString()
@@ -228,7 +233,6 @@ public class ReviewService {
         return new CommentSummaryDto(
                 comment.getId(),
                 comment.getUser().getUsername(),
-                comment.getUser().getImageUrl(),
                 comment.getCreatedAt().toString(),
                 comment.getLikeCount()
         );

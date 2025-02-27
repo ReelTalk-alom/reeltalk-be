@@ -44,7 +44,7 @@ public class Review extends BaseEntity {
     private String overview;
     private String videoPath;
     private Long duration;
-
+    private String title;
 
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -57,13 +57,14 @@ public class Review extends BaseEntity {
 
 
     @Builder
-    public Review(Content content, User user, Image image, String videoPath, String overview,Long duration) {
+    public Review(Content content, User user, Image image, String videoPath, String overview,Long duration, String title) {
         this.content = content;
         this.user = user;
         this.image = image;
         this.videoPath = videoPath;
         this.overview = overview;
         this.duration = duration;
+        this.title=title;
     }
 
 
@@ -75,10 +76,6 @@ public class Review extends BaseEntity {
         if (videoPath != null && !videoPath.isEmpty()) this.videoPath = videoPath;
         if (overview != null && !overview.isEmpty()) this.overview = overview;
     }
-
-
-
-
 
 
     public Long getLikeCount() {

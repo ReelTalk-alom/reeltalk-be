@@ -13,8 +13,11 @@ import lombok.NoArgsConstructor;
 public class ReviewSummaryDto {
 
     private Long reviewId;
+    private String title;
+    private String author;
     private Long userId;
-
+    private String overview;
+    private Long duration;
 
     private String imageUrl;
     private String createAt;
