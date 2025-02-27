@@ -9,12 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CommentSummaryDto {
 
-    private Long commentId;
-
+    private Long userId;
     private String userName;
-    private String userImage;
-    private String title;
+    private String ImageUrl;
     private String createdAt;
 
-//    private int likeCount;
+    private int likeCount;
 }
