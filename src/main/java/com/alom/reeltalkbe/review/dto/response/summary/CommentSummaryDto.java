@@ -11,7 +11,6 @@ public class CommentSummaryDto {
 
     private Long userId;
     private String userName;
-    private String ImageUrl;
     private String createdAt;
 
     private int likeCount;

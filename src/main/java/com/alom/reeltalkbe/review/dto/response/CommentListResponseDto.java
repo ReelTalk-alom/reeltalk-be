@@ -13,7 +13,7 @@ import java.util.List;
 public class CommentListResponseDto {
 
     private Long reviewId;
-
+    private String title;
 
     private String userName;
     private Long userId;
