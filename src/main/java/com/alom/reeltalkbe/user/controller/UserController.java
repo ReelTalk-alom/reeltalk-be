@@ -33,10 +33,31 @@ public class UserController {
     }
 
     // 회원 탈퇴
-    @DeleteMapping("/me")
+    @DeleteMapping("/mypage")
     public BaseResponse<String> deleteUser(@AuthenticationPrincipal CustomUserDetails userDetails, HttpServletResponse response) {
         userService.deleteUser(userDetails.getUserId(), response);
         return new BaseResponse<>("회원 탈퇴가 완료되었습니다.");
+    }
+
+    // 프로필 이미지 등록
+    @PostMapping("/mypage/image")
+    public BaseResponse<String> uploadProfileImage(MultipartFile multipartFile) {
+        String url = userService.uploadProfileImage(multipartFile);
+        return new BaseResponse<>(url);
+    }
+
+    // 프로필 이미지 삭제
+    @DeleteMapping("/mypage/image")
+    public BaseResponse<String> deleteProfileImage() {
+        userService.deleteProfileImage();
+        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+    }
+
+    // 프로필 이미지 조회
+    @GetMapping("/mypage/image")
+    public BaseResponse<String> getProfileImage() {
+        String url = userService.getProfileImage();
+        return new BaseResponse<>(url);
     }
 
     // admin role test
@@ -44,41 +65,4 @@ public class UserController {
     public String admin() {
         return "admin";
     }
-
-    // 프로필 이미지 등록
-    @PostMapping("/image")
-    public BaseResponse<String> uploadProfileImage(MultipartFile multipartFile) {
-        String url = userService.uploadProfileImage(multipartFile);
-        return new BaseResponse<>(url);
-    }
-
-    // 프로필 이미지 삭제
-    @DeleteMapping("/image")
-    public BaseResponse<String> deleteProfileImage() {
-        userService.deleteProfileImage();
-        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
-    }
-
-    // 프로필 이미지 조회
-    @GetMapping("/image")
-    public BaseResponse<String> getProfileImage() {
-        String url = userService.getProfileImage();
-        return new BaseResponse<>(url);
-    }
-//
-//    @DeleteMapping
-//    public BaseResponse<String> deleteUser() {
-//        userService.deleteUser();
-//        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
-//    }
-
-    // test
-//    @GetMapping("/me")
-//    public ResponseEntity<CustomUserDetails> getCurrentUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
-//        System.out.println(userDetails.getUserId());
-//        System.out.println(userDetails.getUsername());
-//        System.out.println(userDetails.getPassword());
-//        return ResponseEntity.ok().body(userDetails);
-//    }
-
 }
