@@ -2,61 +2,84 @@ package com.alom.reeltalkbe.content.domain;
 
 
 import com.alom.reeltalkbe.common.BaseEntity;
+import com.alom.reeltalkbe.content.dto.TMDB.TMDBMovieDetailsRequest;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 
-import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "content")
 @Getter
 public class Content extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @JsonProperty("en_title")
+    private String enTitle;
+    @JsonProperty("kor_title")
+    private String korTitle;
+    private boolean adult;
+    @JsonProperty("backdrop_path")
+    private String backdropPath;
+
+    private String country;
+
+    @Column(columnDefinition = "TEXT")
+    private String overview;
+    private double popularity;
 
     private int ratingCount;
     private int ratingSum;
     private double ratingAverage;
 
-    private String title;
-    private String overview;
-    private String genre;
-    private String nation;
-    private String director;
-    private String actor;
-    private Date released_at;
+    @Convert(converter = GenreListConverter.class)
+    @Column(name = "genres", columnDefinition = "TEXT")
+    private List<Genre> genres;
 
-    // todo : 이미지 두장 추가 (세로 포스터, 가로 포스터)
-//    @Column(name = "backdrop_path")
-//    private Image poster;
+    @JsonProperty("poster_path")
+    private String posterPath;
+    @JsonProperty("release_date")
+    private String releaseDate;
+    private int runtime;
+    private String tagline;
 
-    @Enumerated(EnumType.STRING)
     private ContentType contentType;
 
     // test 용
-    public Content() {
-        ratingSum = 0;
-        ratingCount = 0;
-        ratingAverage = 0;
-        // todo : 한글 / 영문 실시간 검색 기능 (한자 한자 칠때마다 비슷한 영화제목 반환)
-        title = "Avengers 4";
-        overview = "";
-        genre = "horror, asdasd";
-        nation = "asdasdsa";
-        director = "john ber";
-        actor = "asdasf, asdsdf, vsdaf";
-        released_at = new Date();
-        contentType = ContentType.MOVIE;
+    public Content(TMDBMovieDetailsRequest request) {
+        this.id = request.getId();
+        this.enTitle = request.getOriginalTitle();
+        this.korTitle = request.getTitle();
+        this.adult = request.isAdult();
+        this.backdropPath = request.getBackdropPath();
+        this.country = (request.getOriginCountry() != null && !request.getOriginCountry().isEmpty())
+                ? String.join(",", request.getOriginCountry())
+                : "";
+        this.overview = request.getOverview();
+        this.popularity = request.getPopularity();
+        this.ratingCount = 0;
+        this.ratingSum = 0;
+        this.ratingAverage = 0.0;
+        this.genres = request.getGenres();
+        this.posterPath = request.getPosterPath();
+        this.releaseDate = request.getReleaseDate();
+        this.runtime = request.getRuntime();
+        this.tagline = request.getTagline();
+        this.contentType = ContentType.MOVIE;
     }
 
-    public void updateRating(Rating rating) {
+    public Content() {}
+
+    public void updateRating(ContentRating rating) {
         ratingCount++;
         ratingSum += rating.getRatingValue();
         ratingAverage = (double) ratingSum / ratingCount;
     }
 
-    public void deleteRating(Rating rating) {
+    public void deleteRating(ContentRating rating) {
         ratingCount--;
         ratingSum -= rating.getRatingValue();
         //테스트시 count = 0일때는 무한대값이 되어버려, 따로 처리
@@ -65,7 +88,4 @@ public class Content extends BaseEntity {
         else
             ratingAverage = (double) ratingSum / ratingCount;
     }
-}
-enum ContentType{
-    MOVIE, SERIES
 }

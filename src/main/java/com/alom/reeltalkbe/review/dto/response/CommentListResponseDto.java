@@ -11,14 +11,21 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentListResponseDto {
+
     private Long reviewId;
-    private Long contentId;
-    private Long imageId;
+
+
+    private String userName;
     private Long userId;
 
-    private String url;
-    private String description;
-    private double ratingAverage;
+    private String overview;
+    private String videoPath;
+    private String publishedAt;
+    private Long duration;
+    private String imageUrl;
+    private Long likeCount;
+    private Long hateCount;
+
 
     private List<CommentSummaryDto> comments;
 }

@@ -14,9 +14,9 @@ public class ReviewSummaryDto {
 
     private Long reviewId;
     private Long userId;
-    private Long imageId;
 
-    private Double rating;
+
+    private String imageUrl;
     private String createAt;
     private String updateAt;
 }

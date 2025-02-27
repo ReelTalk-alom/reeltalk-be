@@ -17,7 +17,7 @@ public class ReviewListResponseDto {
     private String title;
     private String genre;
     private String nation;
-    private String releasedAt;
+    private String publishedAt;
     private Double ratingAverage;
 
     private List<ReviewSummaryDto> result;

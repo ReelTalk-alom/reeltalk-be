@@ -11,8 +11,9 @@ public class ReviewRequestDto {
 
 
     private Long contentId;
-    private Long imageId;
 
-    private String description;
-    private String url;
+    private String imageUrl;
+    private String overview;
+    private String videoPath;
+    private Long duration;
 }

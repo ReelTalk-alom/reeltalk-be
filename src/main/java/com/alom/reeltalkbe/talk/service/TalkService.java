@@ -6,7 +6,6 @@ import com.alom.reeltalkbe.common.response.BaseResponseStatus;
 import com.alom.reeltalkbe.content.repository.ContentRepository;
 import com.alom.reeltalkbe.talk.domain.TalkMessage;
 import com.alom.reeltalkbe.talk.dto.TalkMessageDto;
-import com.alom.reeltalkbe.talk.dto.TalkMessageResponseDto;
 import com.alom.reeltalkbe.talk.repository.TalkMessageRepository;
 import com.alom.reeltalkbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +28,6 @@ public class TalkService {
         talkMessageDto.setUser(userRepository.findById(talkMessageDto.getUserId())
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER)));
 
-
-
         return talkMessageRepository.save(
                 TalkMessage.of(
                         talkMessageDto,
@@ -43,10 +40,7 @@ public class TalkService {
         TalkMessage talkMessage = talkMessageRepository.findById(talkMessageDto.getMessageId())
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.MESSAGE_NOT_FOUND));
 
-        // User id 매치로 본인이 쓴 톡인지 확인하는 코드
-        if(!talkMessage.getUser().getId().equals(talkMessageDto.getUserId())) {
-            throw new BaseException(BaseResponseStatus.NOT_YOUR_MESSAGE);
-        }
+        throwExceptionIfNotEqualUser(talkMessage, talkMessageDto);
 
         talkMessage.updateMessage(talkMessageDto);
         return talkMessageRepository.save(talkMessage);
@@ -56,10 +50,14 @@ public class TalkService {
         TalkMessage talkMessage = talkMessageRepository.findById(talkMessageDto.getMessageId())
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.MESSAGE_NOT_FOUND));
 
-        if(!talkMessage.getUser().getId().equals(talkMessageDto.getUserId())) {
-            throw new BaseException(BaseResponseStatus.NOT_YOUR_MESSAGE);
-        }
+        throwExceptionIfNotEqualUser(talkMessage, talkMessageDto);
 
         talkMessageRepository.deleteById(talkMessageDto.getMessageId());
+    }
+
+    private void throwExceptionIfNotEqualUser(TalkMessage message, TalkMessageDto dto) {
+        if(!message.getUser().getId().equals(dto.getUserId())) {
+            throw new BaseException(BaseResponseStatus.NOT_YOUR_MESSAGE);
+        }
     }
 }

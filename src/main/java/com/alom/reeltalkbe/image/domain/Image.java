@@ -17,6 +17,10 @@ public class Image {
     @Column(nullable = false)
     private String url;
 
+    // URL 업데이트 메서드
+    public void updateIfPresent(String url) {
+        if (url != null && !url.isEmpty()) this.url = url;
+    }
 
 
 }
