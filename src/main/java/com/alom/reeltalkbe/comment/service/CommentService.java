@@ -3,8 +3,8 @@
 
     import com.alom.reeltalkbe.comment.dto.CommentResponseDTO;
     import com.alom.reeltalkbe.comment.dto.CommentRequestDTO;
-    import com.alom.reeltalkbe.comment.entity.Comment;
-    import com.alom.reeltalkbe.comment.entity.Like;
+    import com.alom.reeltalkbe.comment.domain.Comment;
+    import com.alom.reeltalkbe.comment.domain.Like;
     import com.alom.reeltalkbe.comment.repository.CommentRepository;
     import com.alom.reeltalkbe.comment.repository.LikeRepository;
     import com.alom.reeltalkbe.common.exception.BaseException;

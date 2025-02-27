@@ -1,6 +1,6 @@
 package com.alom.reeltalkbe.comment.dto;
 
-import com.alom.reeltalkbe.comment.entity.Like;
+import com.alom.reeltalkbe.comment.domain.Like;
 
 public class LikeDTO {
 
