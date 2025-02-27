@@ -13,46 +13,54 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/comment")
+@RequestMapping("/api/reviews")
 public class CommentController {
 
     private final CommentService commentService;
 
-    @GetMapping("/reviews/{reviewId}")
+    @GetMapping("/{reviewId}/comments")
     public BaseResponse<?> getComment(@PathVariable(required = true, name="reviewId") Long reviewId){
         return new BaseResponse<>(commentService.getByReview(reviewId));
 
     }
 
-    @PostMapping("/reviews/{reviewId}")
+    @PostMapping("/{reviewId}/comments")
     public BaseResponse<?> postComment(@PathVariable(required = true, name = "reviewId") Long reviewId,
-                                       @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                       @AuthenticationPrincipal CustomUserDetails userDetails,
                                        @RequestBody CommentRequestDTO commentRequestDTO){
 
-        return new BaseResponse<>(commentService.add(customUserDetails, reviewId, commentRequestDTO));
+        return new BaseResponse<>(commentService.add(userDetails, reviewId, commentRequestDTO));
 
     }
 
 
-    @PutMapping("/reviews/{reviewId}")
+    @PutMapping("/{reviewId}/comments/{commentId}")
     public BaseResponse<?> updateComment(@PathVariable(required = true, name = "reviewId") Long reviewId,
-                                         @RequestParam(required = true, name = "commentId") Long commentId,
-                                         @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                         @PathVariable(required = true, name = "commentId") Long commentId,
+                                         @AuthenticationPrincipal CustomUserDetails userDetails,
                                          @RequestBody CommentRequestDTO commentRequestDTO){
 
-        return new BaseResponse<>(commentService.update(customUserDetails, commentId, reviewId, commentRequestDTO));
+        return new BaseResponse<>(commentService.update(userDetails, commentId, reviewId, commentRequestDTO));
 
     }
 
 
-    @DeleteMapping("/reviews/{reviewId}")
+    @DeleteMapping("/{reviewId}/comments/{commentId}")
     public BaseResponse<?> deleteComment(@PathVariable(required = true, name = "reviewId") Long reviewId,
-                                         @AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                         @RequestParam(required = true, name = "commentId") Long commentId) {
+                                         @PathVariable(required = true, name = "commentId") Long commentId,
+                                         @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        commentService.delete(customUserDetails, commentId, reviewId);
+
+        commentService.delete(userDetails, commentId, reviewId);
         return new BaseResponse<>(BaseResponseStatus.SUCCESS);
 
+    }
+
+    @PutMapping("/{reviewId}/comments/{commentId}/like")
+    public BaseResponse<?> updateLike(@PathVariable(required = true, name = "reviewId") Long reviewId,
+                                      @PathVariable(required = true, name="commentId") Long commentId,
+                                      @AuthenticationPrincipal CustomUserDetails userDetails){
+        return new BaseResponse<>(commentService.updateLike(userDetails, commentId));
     }
 
     

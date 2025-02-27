@@ -14,7 +14,7 @@ import lombok.*;
 public class Comment extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -32,7 +32,7 @@ public class Comment extends BaseEntity {
 
 
 
-    public void updateContnet(String content) {
+    public void updateContent(String content) {
         this.content = content;
     }
     public void updateLikeCount(int likeCount){
