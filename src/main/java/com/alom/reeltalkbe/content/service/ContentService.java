@@ -3,73 +3,83 @@ package com.alom.reeltalkbe.content.service;
 import com.alom.reeltalkbe.common.exception.BaseException;
 import com.alom.reeltalkbe.common.response.BaseResponseStatus;
 import com.alom.reeltalkbe.content.domain.Content;
-import com.alom.reeltalkbe.content.domain.Rating;
-import com.alom.reeltalkbe.content.dto.RatingDto;
+import com.alom.reeltalkbe.content.dto.ContentDetailsResponse;
+import com.alom.reeltalkbe.content.dto.MovieTabResponse;
 import com.alom.reeltalkbe.content.repository.ContentRepository;
-import com.alom.reeltalkbe.content.repository.RatingRepository;
-import com.alom.reeltalkbe.user.repository.UserRepository;
+import com.alom.reeltalkbe.review.domain.Review;
+import com.alom.reeltalkbe.review.repository.ReviewRepository;
+import com.alom.reeltalkbe.talk.domain.TalkMessage;
+import com.alom.reeltalkbe.talk.repository.TalkMessageRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ContentService {
 
-    private final UserRepository userRepository;
     private final ContentRepository contentRepository;
-    private final RatingRepository ratingRepository;
+    private final ReviewRepository reviewRepository;
+    private final TalkMessageRepository talkMessageRepository;
+    //private final CharacterRepository characterRepository;
+    // tmdb 이슈로 캐릭터는 고민해야함
 
     // 포스터 이미지와 링크만 가져오기?
-    public List<Content> findPopularContentImages() {
+    public List<Content> findPopularContents() {
         //
         return contentRepository.findAll();
     }
 
-    public Content findContentById(Long id) {
-        return contentRepository.findById(id)
+
+    @Transactional
+    public ContentDetailsResponse findContentDetailsByContentId(Long contentId) {
+        Content content = contentRepository.findById(contentId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.CONTENT_NOT_FOUND));
+        // todo : jpa orderby 좋아요수? 같은거 추가
+        List<Review> reviews = reviewRepository.findAllByContentId(content.getId());
+        // todo : talkMessages 시간순으로 나오는지 보기
+        List<TalkMessage> talkMessages = talkMessageRepository.findAllByContentId(content.getId());
+        return ContentDetailsResponse.of(content, reviews, talkMessages);
     }
 
-    public Content addRating(Long contentId, Long userId, RatingDto ratingDto) {
-        // 이미 평가한 컨텐츠라면 예외 처리
-        if (ratingRepository.findRatingByContentIdAndUserId(contentId, userId).isPresent()) {
-            throw new BaseException(BaseResponseStatus.EXIST_RATING);
+    public List<MovieTabResponse> findMoviesAndReviewsSortBy(String sort) {
+        List<Content> contentList = new ArrayList<>();
+
+        if(sort.equals("releaseDate")) {    // todo : 분류명 추가 가능
+            contentList = contentRepository.findTop10ByOrderByReleaseDateAsc();
         }
-        // content 조회
-        Content content = findContentById(contentId);
 
-        // user 조회 후 rating 빌더 패턴 사용
-        Rating rating = Rating
-                .builder()
-                .user(userRepository.findById(userId)
-                        .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER)))
-                .content(content)
-                .ratingValue(ratingDto.getRating())
-                .build();
+        List<Long> contentIds = contentList.stream()
+                .map(Content::getId)
+                .collect(Collectors.toList());
 
-        // 컨텐츠 평균 평점 계산 후 rating 객체 DB에 저장
-        content.updateRating(rating);
-        ratingRepository.save(rating);
-        return content;
+        // todo : jpa orderby 좋아요수? 같은거 추가
+        List<Review> reviewList = reviewRepository.findTop10ByContentIdIn(contentIds);
+
+        Map<Long, List<Review>> reviewsByContent = reviewList.stream()
+                .collect(Collectors.groupingBy(review -> review.getContent().getId()));
+
+
+        return contentList.stream()
+                .map(content ->
+                        MovieTabResponse.of(content, reviewsByContent.getOrDefault(content.getId(), Collections.emptyList())))
+                .toList();
+
     }
 
-    public Content deleteRating(Long contentId, Long userId) {
-        // content, rating 조회
-        Content content = findContentById(contentId);
-        Rating rating = ratingRepository.findRatingByContentIdAndUserId(contentId, userId)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.RATING_NOT_FOUND));
-
-        content.deleteRating(rating);
-        ratingRepository.delete(rating);
-        return content;
+    public String findSeriesAndReviewSortBy() {
+        return "Hmm....";
     }
-
-
 
     // ------------------ 테스트용 메서드 ------------------------
     public Content addContent(Content content) {
         return contentRepository.save(content);
     }
+
 }

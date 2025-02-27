@@ -1,21 +1,7 @@
 package com.alom.reeltalkbe.content.controller;
 
-import com.alom.reeltalkbe.common.exception.BaseException;
-import com.alom.reeltalkbe.common.response.BaseResponse;
-import com.alom.reeltalkbe.common.response.BaseResponseStatus;
-import com.alom.reeltalkbe.content.domain.TMDB.Movie;
-import com.alom.reeltalkbe.content.dto.TMDB.TMDBMovieDetailsRequest;
-import com.alom.reeltalkbe.content.repository.MovieRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
-@RestController
-@RequestMapping("/movies")
-@RequiredArgsConstructor
+//@CrossOrigin(origins = "http://ead8-115-91-214-4.ngrok-free.app/movies") // 허용할 프론트엔드 도메인
 public class MovieController {
-    private final MovieRepository movieRepository;
     /**
      * 클라이언트에서 JSON 형태의 영화 상세 정보를 보내면 DB에 저장합니다.
      *
@@ -52,48 +38,5 @@ public class MovieController {
      *    "characters": [ { ... }, ... ]
      * }
      */
-    @PostMapping
-    public BaseResponse<Movie> createMovie(@RequestBody TMDBMovieDetailsRequest dto) {
-        Movie movie = new Movie();
-        movie.setAdult(dto.isAdult());
-        movie.setBackdropPath(dto.getBackdropPath());
-        movie.setBelongsToCollection(dto.getBelongsToCollection());
-        movie.setGenres(dto.getGenres());
-        movie.setHomepage(dto.getHomepage());
-        movie.setId(dto.getId());
-        movie.setImdbId(dto.getImdbId());
-        movie.setOriginCountry(dto.getOriginCountry());
-        movie.setOriginalLanguage(dto.getOriginalLanguage());
-        movie.setOriginalTitle(dto.getOriginalTitle());
-        movie.setOverview(dto.getOverview());
-        movie.setPopularity(dto.getPopularity());
-        movie.setPosterPath(dto.getPosterPath());
-        movie.setReleaseDate(dto.getReleaseDate());
-        movie.setRuntime(dto.getRuntime());
-        movie.setStatus(dto.getStatus());
-        movie.setTagline(dto.getTagline());
-        movie.setTitle(dto.getTitle());
-        movie.setVideo(dto.isVideo());
-        movie.setVoteAverage(0);
-        movie.setVoteCount(0);
 
-        movie.setNameKor("기본 한글 제목");
-        movie.setPopular("인기순위 몇위");
-        movie.setLatest("최신개봉순");
-
-        return new BaseResponse<>(movieRepository.save(movie));
-    }
-
-    @GetMapping
-    public BaseResponse<List<Movie>> getMovies() {
-        return new BaseResponse<>(movieRepository.findAll());
-    }
-
-    @GetMapping("/{movieId}")
-    public BaseResponse<Movie> getMovieDetail(@PathVariable Long movieId) {
-        Movie savedMovie = movieRepository.findById(movieId)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.CONTENT_NOT_FOUND));
-
-        return new BaseResponse<>(savedMovie);
-    }
 }

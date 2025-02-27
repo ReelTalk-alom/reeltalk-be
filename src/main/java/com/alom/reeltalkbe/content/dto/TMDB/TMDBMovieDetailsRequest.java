@@ -1,7 +1,6 @@
 package com.alom.reeltalkbe.content.dto.TMDB;
 
-import com.alom.reeltalkbe.content.domain.TMDB.BelongsToCollection;
-import com.alom.reeltalkbe.content.domain.TMDB.Genre;
+import com.alom.reeltalkbe.content.domain.Genre;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,9 +17,9 @@ public class TMDBMovieDetailsRequest {
 
     @JsonProperty("backdrop_path")
     private String backdropPath;
-
-    @JsonProperty("belongs_to_collection")
-    private BelongsToCollection belongsToCollection;
+//
+//    @JsonProperty("belongs_to_collection")
+//    private BelongsToCollection belongsToCollection;
 
     private long budget;
 
