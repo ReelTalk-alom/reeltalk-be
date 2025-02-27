@@ -9,12 +9,14 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
 public interface ReviewRepository extends JpaRepository <Review, Long> {
     Page<Review> findByContentId(Long contentId, Pageable pageable);
 
     List<Review> findByUserId(Long userId);
 
-    Optional<Object> findTopByUserIdOrderByRatingSumDesc(Long userId);
+
+    List<Review> findTop10ByContentIdIn(List<Long> contentIds);
+
+    List<Review> findAllByContentId(Long id);
 }
 
