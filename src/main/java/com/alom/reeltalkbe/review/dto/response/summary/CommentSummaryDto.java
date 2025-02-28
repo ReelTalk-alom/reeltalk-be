@@ -1,17 +1,32 @@
 package com.alom.reeltalkbe.review.dto.response.summary;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.alom.reeltalkbe.comment.domain.Comment;
+import lombok.*;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+
+@Getter
 public class CommentSummaryDto {
 
-    private Long userId;
-    private String userName;
-    private String createdAt;
+    private final Long userId;
+    private final String userName;
+    private final String createdAt;
 
-    private int likeCount;
+    private final int likeCount;
+
+    @Builder
+    private CommentSummaryDto(Long userId, String userName, String createdAt, int likeCount) {
+        this.userId = userId;
+        this.userName = userName;
+        this.createdAt = createdAt;
+        this.likeCount = likeCount;
+    }
+
+    public static CommentSummaryDto fromEntity(Comment comment) {
+        return CommentSummaryDto.builder()
+                .userId(comment.getUser().getId())
+                .userName(comment.getUser().getUsername())
+                .createdAt(comment.getCreatedAt().toString())
+                .likeCount(comment.getLikeCount())
+                .build();
+    }
 }
