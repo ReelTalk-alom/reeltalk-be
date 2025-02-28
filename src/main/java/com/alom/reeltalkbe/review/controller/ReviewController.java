@@ -15,8 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/reviews")
@@ -53,6 +56,13 @@ public class ReviewController {
         return new BaseResponse<>(listResponseDTO);
     }
 
+    @GetMapping(params = "sort=top-review")
+    public BaseResponse<List<ReviewResponseDto>> getTopReviews() {
+        return new BaseResponse<>(reviewService.getTopReviews());
+    }
+
+
+
     /**
      * 특정 리뷰 조회 API (DTO 없이 reviewId만 사용)
      */
@@ -82,13 +92,14 @@ public class ReviewController {
      * 리뷰 삭제 API (DTO 없이 reviewId만 사용)
      */
     @DeleteMapping("/{reviewId}")
-    public BaseResponse<ReviewResponseDto> deleteReview(@PathVariable Long reviewId,
+    public BaseResponse<String> deleteReview(@PathVariable Long reviewId,
                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
         if (userDetails == null) {
             log.info("토큰 인증 실패");
             throw new BaseException(BaseResponseStatus.FAIL_TOKEN_AUTHORIZATION);
         }
-        return new BaseResponse<>(reviewService.deleteReview(userDetails.getUserId(), reviewId));
+        reviewService.deleteReview(userDetails.getUserId(), reviewId);
+        return new BaseResponse<>("삭제완료");
     }
 
     @PostMapping("/{reviewId}")
@@ -102,4 +113,5 @@ public class ReviewController {
         reviewService.rateReview(userDetails.getUserId(), reviewId, likeType);
         return new BaseResponse<>(likeType == LikeType.LIKE ? "좋아요 처리 완료" : " 싫어요 처리 완료");
     }
+
 }
