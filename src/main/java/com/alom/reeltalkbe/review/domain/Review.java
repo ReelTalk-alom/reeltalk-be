@@ -72,22 +72,25 @@ public class Review extends BaseEntity {
     /**
      * 리뷰 수정 메서드
      */
-    public void updateIfPresent(String videoPath, String overview) {
+    public void updateVideoAndTitle(String videoPath, String title) {
         if (videoPath != null && !videoPath.isEmpty()) this.videoPath = videoPath;
-        if (overview != null && !overview.isEmpty()) this.overview = overview;
+        if (title != null && !title.isEmpty()) this.title = title;
     }
 
+    public void updateOverview(String overview) {
+        if (overview != null && !overview.isEmpty()) this.overview=overview;
+    }
 
+    /**
+     * 직접 좋아요/싫어요 개수 조회
+     */
     public Long getLikeCount() {
-        return reviewLikes.stream()
-                .filter(like -> like.getLikeType() == LikeType.LIKE)
-                .count();
+        return reviewLikes.stream().filter(like -> like.getLikeType() == LikeType.LIKE).count();
     }
 
     public Long getHateCount() {
-        return reviewLikes.stream()
-                .filter(like -> like.getLikeType() == LikeType.HATE)
-                .count();
+        return reviewLikes.stream().filter(like -> like.getLikeType() == LikeType.HATE).count();
     }
+
 
 }
