@@ -1,7 +1,6 @@
 package com.alom.reeltalkbe.review.service;
 
 
-import com.alom.reeltalkbe.comment.domain.Comment;
 import com.alom.reeltalkbe.common.exception.BaseException;
 import com.alom.reeltalkbe.common.response.BaseResponseStatus;
 import com.alom.reeltalkbe.content.domain.Content;
@@ -14,8 +13,6 @@ import com.alom.reeltalkbe.review.dto.ReviewRequestDto;
 import com.alom.reeltalkbe.review.dto.response.CommentListResponseDto;
 import com.alom.reeltalkbe.review.dto.response.ReviewListResponseDto;
 import com.alom.reeltalkbe.review.dto.response.ReviewResponseDto;
-import com.alom.reeltalkbe.review.dto.response.summary.CommentSummaryDto;
-import com.alom.reeltalkbe.review.dto.response.summary.ReviewSummaryDto;
 import com.alom.reeltalkbe.review.repository.ReviewLikeRepository;
 import com.alom.reeltalkbe.review.repository.ReviewRepository;
 import com.alom.reeltalkbe.user.domain.User;
@@ -23,6 +20,7 @@ import com.alom.reeltalkbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +39,7 @@ public class ReviewService {
     private final ContentRepository contentRepository;
     private final UserRepository userRepository;
     private final ReviewLikeRepository reviewLikeRepository;
+    private final YouTubeService youTubeService;
 
 
 
@@ -53,21 +52,25 @@ public class ReviewService {
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
 
 
-
-
         try {
-            Image image = Image.builder()
-                    .url(requestDto.getImageUrl())
-                    .build();  //imageRepository.save() 필요 없음
+            // YouTube API를 활용하여 제목과 썸네일 가져오기
+            String title = youTubeService.getVideoTitle(requestDto.getVideoPath());
+            String thumbnailUrl = (requestDto.getThumbnail() == null || requestDto.getThumbnail().trim().isEmpty())
+                    ? youTubeService.getThumbnailUrl(requestDto.getVideoPath()) // YouTube 썸네일 사용
+                    : requestDto.getThumbnail(); // 사용자가 입력한 썸네일 사용
+
+            Image image = Image.builder().url(thumbnailUrl).build();
+
             Review review = Review.builder()
                     .content(content)
                     .user(user)
                     .image(image)
                     .overview(requestDto.getOverview())
                     .videoPath(requestDto.getVideoPath())
-                    .duration(requestDto.getDuration())
+                    .title(title) //  YouTube API에서 가져온 제목
                     .build();
-            return convertToDto(reviewRepository.save(review));
+
+            return ReviewResponseDto.fromEntity(reviewRepository.save(review));
         } catch (Exception e) {
             throw new BaseException(BaseResponseStatus.FAIL_REVIEW_POST); // 5xx (서버 문제)
         }
@@ -82,24 +85,23 @@ public class ReviewService {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.CONTENT_NOT_FOUND));
 
-        Page<ReviewSummaryDto> reviewPage = reviewRepository.findByContentId(contentId, pageable)
-                .map(this::convertToReviewSummaryDto);
+        Page<ReviewResponseDto> reviewPage = reviewRepository.findByContentId(contentId, pageable)
+                .map(ReviewResponseDto::fromEntity); // DTO 변환을 직접 처리
 
-        return new ReviewListResponseDto(
-                content.getId(),
-                content.getEnTitle(),           // 위승재 : content 엔티티 변경으로 인한 오류 해결
-                content.getGenres().toString(),
-                content.getCountry(),
-                content.getReleaseDate(),
-                content.getRatingAverage(),
-                reviewPage.getContent(),  // 페이지 내부 데이터 리스트
-                reviewPage.getTotalPages(),  // 전체 페이지 개수
-                reviewPage.getTotalElements(),  // 전체 데이터 개수
-                reviewPage.getNumber()  // 현재 페이지 번호
-        );
+        return ReviewListResponseDto.fromEntity(content, reviewPage);
     }
 
+    /**
+     * 좋아요가 가장 많은 상위 10개 리뷰 조회
+     */
+    public List<ReviewResponseDto> getTopReviews() {
+        Pageable pageable = PageRequest.of(0, 10); // 상위 10개 리뷰만 조회
+        List<Review> topReviews = reviewRepository.findTopReviews(pageable);
 
+        return topReviews.stream()
+                .map(ReviewResponseDto::fromEntity) // DTO 변환
+                .collect(Collectors.toList());
+    }
     /**
      * 특정 리뷰 조회 (DTO 없이 reviewId만 사용)
      */
@@ -108,24 +110,7 @@ public class ReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_REVIEW)); // 4xx
 
-        List<CommentSummaryDto> commentList = review.getComments().stream()
-                .map(this::convertToCommentSummaryDto)
-                .collect(Collectors.toList());
-
-        return new CommentListResponseDto(
-                review.getId(),
-                review.getTitle(),
-                review.getUser().getUsername(),
-                review.getUser().getId(),
-                review.getOverview(),
-                review.getVideoPath(),
-                review.getCreatedAt().toString(),
-                review.getDuration(),
-                review.getImage().getUrl(),
-                review.getLikeCount(),
-                review.getHateCount(),
-                commentList  //  댓글 리스트 포함
-        );
+        return CommentListResponseDto.fromEntity(review, review.getComments());
     }
 
 
@@ -168,12 +153,35 @@ public class ReviewService {
         }
 
         try {
-            //이미지 url 업데이트
-            review.getImage().updateIfPresent(requestDTO.getImageUrl());
-            // 리뷰 내용 및 영상 경로 업데이트 (엔티티에서 처리)
-            review.updateIfPresent(requestDTO.getVideoPath(), requestDTO.getOverview());
+            // 기존 데이터 가져오기
+            String currentVideoPath = review.getVideoPath();
+            String newVideoPath = requestDTO.getVideoPath();
+            boolean isVideoChanged = newVideoPath != null && !newVideoPath.equals(currentVideoPath);
 
-            return convertToDto(review);
+            // 기본값 설정 (변경되지 않으면 기존 값 유지)
+            String newOverview = requestDTO.getOverview() != null ? requestDTO.getOverview() : review.getOverview();
+            String newThumbnail = review.getImage().getUrl(); // 기본값: 기존 썸네일
+            String newTitle = review.getTitle(); // 기본값: 기존 제목
+
+            // thumbnail이 변경되었는지 확인
+            boolean isThumbnailChanged = requestDTO.getThumbnail() != null && !requestDTO.getThumbnail().trim().isEmpty();
+
+            // videoPath가 변경되었고, 사용자가 새로운 썸네일을 제공하지 않았을 경우 → YouTube 썸네일 적용
+            if (isVideoChanged && !isThumbnailChanged) {
+                newTitle = youTubeService.getVideoTitle(newVideoPath);
+                newThumbnail = youTubeService.getThumbnailUrl(newVideoPath);
+            }
+            // 사용자가 새로운 썸네일을 입력했을 경우 → 입력한 값 사용
+            else if (isThumbnailChanged) {
+                newThumbnail = requestDTO.getThumbnail();
+            }
+
+            // 필드 업데이트
+            review.updateVideoAndTitle(newVideoPath, newTitle);
+            review.updateOverview(newOverview);
+            review.getImage().updateIfPresent(newThumbnail);
+
+            return ReviewResponseDto.fromEntity(reviewRepository.save(review));
         } catch (Exception e) {
             throw new BaseException(BaseResponseStatus.FAIL_REVIEW_POST); // 5xx
         }
@@ -183,7 +191,7 @@ public class ReviewService {
     /**
      * 리뷰 삭제 (DTO 없이 reviewId만 사용)
      */
-    public ReviewResponseDto deleteReview(Long userId, Long reviewId) {
+    public void deleteReview(Long userId, Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_REVIEW)); // 4xx
 
@@ -194,50 +202,11 @@ public class ReviewService {
 
         try {
             reviewRepository.delete(review);
-            return convertToDto(review);
         } catch (Exception e) {
             log.error("리뷰 삭제 중 오류 발생: {}", e.getMessage());
             throw new BaseException(BaseResponseStatus.DATABASE_INSERT_ERROR); // 5xx
         }
     }
-
-    private ReviewResponseDto convertToDto(Review review) {
-        return new ReviewResponseDto(
-                review.getId(),
-                review.getContent().getId(),
-                review.getUser().getId(),
-                review.getVideoPath(),
-                review.getOverview(),
-                review.getDuration(),
-                review.getImage().getUrl(),
-                review.getLikeCount(),
-                review.getHateCount()
-        );
-    }
-
-    private ReviewSummaryDto convertToReviewSummaryDto(Review review) {
-        return new ReviewSummaryDto(
-                review.getId(),
-                review.getTitle(),
-                review.getUser().getUsername(),
-                review.getUser().getId(),
-                review.getOverview(),
-                review.getDuration(),
-                review.getImage().getUrl(),
-                review.getCreatedAt().toString(),
-                review.getUpdatedAt().toString()
-        );
-    }
-
-    private CommentSummaryDto convertToCommentSummaryDto(Comment comment) {
-        return new CommentSummaryDto(
-                comment.getId(),
-                comment.getUser().getUsername(),
-                comment.getCreatedAt().toString(),
-                comment.getLikeCount()
-        );
-    }
-
 
 
 }
