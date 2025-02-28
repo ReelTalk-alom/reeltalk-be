@@ -52,6 +52,7 @@ public class MovieTabResponse {
         posterPath = content.getPosterPath();
         releaseDate = content.getReleaseDate();
         title = content.getEnTitle();
+        this.reviews = reviews;
     }
 
     public static MovieTabResponse of(Content content, List<Review> reviews) {
