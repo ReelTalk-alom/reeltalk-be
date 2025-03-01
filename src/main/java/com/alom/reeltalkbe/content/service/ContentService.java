@@ -3,8 +3,10 @@ package com.alom.reeltalkbe.content.service;
 import com.alom.reeltalkbe.common.exception.BaseException;
 import com.alom.reeltalkbe.common.response.BaseResponseStatus;
 import com.alom.reeltalkbe.content.domain.Content;
+import com.alom.reeltalkbe.content.domain.ContentType;
 import com.alom.reeltalkbe.content.dto.ContentDetailsResponse;
 import com.alom.reeltalkbe.content.dto.MovieTabResponse;
+import com.alom.reeltalkbe.content.dto.SeriesTabResponse;
 import com.alom.reeltalkbe.content.repository.ContentRepository;
 import com.alom.reeltalkbe.review.domain.Review;
 import com.alom.reeltalkbe.review.repository.ReviewRepository;
@@ -52,7 +54,7 @@ public class ContentService {
         List<Content> contentList = new ArrayList<>();
 
         if(sort.equals("releaseDate")) {    // todo : 분류명 추가 가능
-            contentList = contentRepository.findTop10ByOrderByReleaseDateAsc();
+            contentList = contentRepository.findTop10ByContentTypeOrderByReleaseDateAsc(ContentType.MOVIE);
         }
 
         List<Long> contentIds = contentList.stream()
@@ -73,8 +75,26 @@ public class ContentService {
 
     }
 
-    public String findSeriesAndReviewSortBy() {
-        return "Hmm....";
+    public List<SeriesTabResponse> findSeriesAndReviewsSortBy(String sort) {
+        List<Content> contentList = new ArrayList<>();
+
+        if (sort.equals("firstAirDate")) {
+            contentList = contentRepository.findTop10ByContentTypeOrderByReleaseDateAsc(ContentType.SERIES);
+        }
+
+        List<Long> contentIds = contentList.stream()
+                .map(Content::getId)
+                .collect(Collectors.toList());
+
+        List<Review> reviewList = reviewRepository.findTop10ByContentIdIn(contentIds);
+
+        Map<Long, List<Review>> reviewsByContent = reviewList.stream()
+                .collect(Collectors.groupingBy(review -> review.getContent().getId()));
+
+        return contentList.stream()
+                .map(content ->
+                        SeriesTabResponse.of(content, reviewsByContent.getOrDefault(content.getId(), Collections.emptyList())))
+                .toList();
     }
 
     // ------------------ 테스트용 메서드 ------------------------

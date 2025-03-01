@@ -3,6 +3,7 @@ package com.alom.reeltalkbe.content.domain;
 
 import com.alom.reeltalkbe.common.BaseEntity;
 import com.alom.reeltalkbe.content.dto.TMDB.TMDBMovieDetailsRequest;
+import com.alom.reeltalkbe.content.dto.TMDB.TMDBSeriesDetailsRequest;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -48,6 +49,12 @@ public class Content extends BaseEntity {
 
     private ContentType contentType;
 
+    // series에만 필요
+    @Column(name = "number_of_seasons")
+    private Integer numberOfSeasons;
+    @Column(name = "number_of_episodes")
+    private Integer numberOfEpisodes;
+
     // test 용
     public Content(TMDBMovieDetailsRequest request) {
         this.id = request.getId();
@@ -69,6 +76,33 @@ public class Content extends BaseEntity {
         this.runtime = request.getRuntime();
         this.tagline = request.getTagline();
         this.contentType = ContentType.MOVIE;
+    }
+
+    // test용
+    public Content(TMDBSeriesDetailsRequest request) {
+        this.id = request.getId();
+        this.enTitle = request.getOriginalName();
+        this.korTitle = request.getName();
+        this.adult = request.isAdult();
+        this.backdropPath = request.getBackdropPath();
+        this.country = (request.getOriginCountry() != null && !request.getOriginCountry().isEmpty())
+                ? String.join(",", request.getOriginCountry())
+                : "";
+        this.overview = request.getOverview();
+        this.popularity = request.getPopularity();
+        this.ratingCount = 0;
+        this.ratingSum = 0;
+        this.ratingAverage = 0.0;
+        this.genres = request.getGenres();
+        this.posterPath = request.getPosterPath();
+        this.releaseDate = request.getFirstAirDate(); // 시리즈의 경우 첫 방영일을 출시일로 사용
+        this.runtime = (request.getEpisodeRunTime() != null && !request.getEpisodeRunTime().isEmpty())
+                ? request.getEpisodeRunTime().get(0)  // 첫 번째 에피소드의 런타임 사용
+                : 0;
+        this.tagline = request.getTagline();
+        this.contentType = ContentType.SERIES;
+        this.numberOfSeasons = request.getNumberOfSeasons();
+        this.numberOfEpisodes = request.getNumberOfEpisodes();
     }
 
     public Content() {}
