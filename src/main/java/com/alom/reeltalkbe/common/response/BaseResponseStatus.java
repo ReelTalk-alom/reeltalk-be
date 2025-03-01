@@ -19,6 +19,7 @@ public enum BaseResponseStatus {
     EXIST_USERNAME(false, HttpStatus.CONFLICT.value(), "이미 존재하는 사용자 이름입니다."),
     EXIST_RATING(false, HttpStatus.CONFLICT.value(), "이미 평가된 컨텐츠입니다."),
 
+    JSON_PARSE_ERROR(false, HttpStatus.BAD_REQUEST.value(), "로그인 요청 JSON 파싱 중 오류가 발생했습니다."),
 
     NON_EXIST_USER(false, HttpStatus.UNAUTHORIZED.value(), "존재하지 않는 회원입니다."),
     HTTP_METHOD_ERROR(false, HttpStatus.FORBIDDEN.value(), "http 메서드가 올바르지 않습니다."),
@@ -28,7 +29,7 @@ public enum BaseResponseStatus {
     INVALID_MEETING(false, HttpStatus.NO_CONTENT.value(), "존재하지 않는 게시글입니다."),
     INVALID_CHATROOM(false, HttpStatus.NOT_FOUND.value(), "유효하지 않은 채팅방입니다."),
     INVALID_COMMENT(false, HttpStatus.NOT_FOUND.value(), "존재하지 않은 댓글입니다."),
-
+    FILE_NOT_FOUND(false, HttpStatus.NOT_FOUND.value(), "파일을 찾을 수 없습니다."),
 
     NOT_YOUR_MESSAGE(false, HttpStatus.NO_CONTENT.value(), "다른 유저의 톡 메시지입니다."),
     MESSAGE_NOT_FOUND(false, HttpStatus.NO_CONTENT.value(), "존재하지 않는 실시간 톡 메시지입니다."),
@@ -46,7 +47,9 @@ public enum BaseResponseStatus {
     FAIL_COMMENT_POST(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "댓글 작성에 실패했습니다."),
     FAIL_COMMENT_DELETE(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "댓글 삭제에 실패했습니다."),
     DATABASE_INSERT_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "데이터베이스 입력에 실패했습니다."),
-    FAIL_IMAGE_CONVERT(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Multipart 파일 전환에 실패했습니다.");
+    FAIL_IMAGE_CONVERT(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Multipart 파일 전환에 실패했습니다."),
+    IMAGE_UPLOAD_FAILED(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "이미지 업로드에 실패했습니다."),
+    JSON_CONVERT_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "JSON 변환 중 오류가 발생했습니다.");
 
     private final boolean isSuccess;
     private final int code;

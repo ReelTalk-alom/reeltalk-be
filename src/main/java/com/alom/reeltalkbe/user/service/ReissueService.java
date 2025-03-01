@@ -1,5 +1,6 @@
 package com.alom.reeltalkbe.user.service;
 
+import com.alom.reeltalkbe.common.exception.BaseException;
 import com.alom.reeltalkbe.common.response.BaseResponse;
 import com.alom.reeltalkbe.common.response.BaseResponseStatus;
 import com.alom.reeltalkbe.user.domain.RefreshEntity;
@@ -28,17 +29,17 @@ public class ReissueService {
         // 쿠키에서 Refresh 토큰 가져오기
         String refresh = extractRefreshToken(request);
         if (refresh == null) {
-            return new BaseResponse<>(BaseResponseStatus.NO_TOKEN);
+            throw new BaseException(BaseResponseStatus.NO_TOKEN);
         }
 
         // Refresh 토큰 검증
         if (!validateRefreshToken(refresh)) {
-            return new BaseResponse<>(BaseResponseStatus.FAIL_TOKEN_AUTHORIZATION);
+            throw new BaseException(BaseResponseStatus.FAIL_TOKEN_AUTHORIZATION);
         }
 
         // DB에서 Refresh 토큰 존재 여부 확인
         if (!refreshRepository.existsByRefresh(refresh)) {
-            return new BaseResponse<>(BaseResponseStatus.FAIL_TOKEN_AUTHORIZATION);
+            throw new BaseException(BaseResponseStatus.FAIL_TOKEN_AUTHORIZATION);
         }
 
         // 새로운 Access & Refresh 토큰 생성
