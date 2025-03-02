@@ -5,6 +5,7 @@ import com.alom.reeltalkbe.common.response.BaseResponseStatus;
 import com.alom.reeltalkbe.content.domain.Content;
 import com.alom.reeltalkbe.content.dto.ContentDetailsResponse;
 import com.alom.reeltalkbe.content.dto.MovieTabResponse;
+import com.alom.reeltalkbe.content.dto.ReviewResponse;
 import com.alom.reeltalkbe.content.repository.ContentRepository;
 import com.alom.reeltalkbe.review.domain.Review;
 import com.alom.reeltalkbe.review.repository.ReviewRepository;
@@ -42,7 +43,10 @@ public class ContentService {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.CONTENT_NOT_FOUND));
         // todo : jpa orderby 좋아요수? 같은거 추가
-        List<Review> reviews = reviewRepository.findAllByContentId(content.getId());
+        List<ReviewResponse> reviews = reviewRepository.findAllByContentId(content.getId())
+            .stream()
+            .map(ReviewResponse::of)
+            .toList();
         // todo : talkMessages 시간순으로 나오는지 보기
         List<TalkMessage> talkMessages = talkMessageRepository.findAllByContentId(content.getId());
         return ContentDetailsResponse.of(content, reviews, talkMessages);
@@ -65,12 +69,10 @@ public class ContentService {
         Map<Long, List<Review>> reviewsByContent = reviewList.stream()
                 .collect(Collectors.groupingBy(review -> review.getContent().getId()));
 
-
         return contentList.stream()
-                .map(content ->
-                        MovieTabResponse.of(content, reviewsByContent.getOrDefault(content.getId(), Collections.emptyList())))
+                .map(content -> MovieTabResponse.of(content, reviewsByContent
+                    .getOrDefault(content.getId(), Collections.emptyList())))
                 .toList();
-
     }
 
     public String findSeriesAndReviewSortBy() {

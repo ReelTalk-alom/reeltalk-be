@@ -38,10 +38,10 @@ public class MovieTabResponse {
 
     private String title;
 
-    private List<Review> reviews;
+    private List<ReviewResponse> reviews;
 
     @Builder
-    private MovieTabResponse(Content content, List<Review> reviews) {
+    private MovieTabResponse(Content content, List<ReviewResponse> reviews) {
         id = content.getId();
         adult = content.isAdult();
         backdropPath = content.getBackdropPath();
@@ -56,9 +56,13 @@ public class MovieTabResponse {
     }
 
     public static MovieTabResponse of(Content content, List<Review> reviews) {
+        List<ReviewResponse> reviewResponses = reviews.stream()
+            .map(ReviewResponse::of)
+            .toList();
+
         return MovieTabResponse.builder()
                 .content(content)
-                .reviews(reviews)
+                .reviews(reviewResponses)
                 .build();
     }
 }
