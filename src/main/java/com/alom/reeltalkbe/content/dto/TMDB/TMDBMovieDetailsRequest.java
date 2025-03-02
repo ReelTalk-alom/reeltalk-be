@@ -2,6 +2,7 @@ package com.alom.reeltalkbe.content.dto.TMDB;
 
 import com.alom.reeltalkbe.content.domain.Genre;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -55,7 +56,7 @@ public class TMDBMovieDetailsRequest {
     private List<ProductionCountryDto> productionCountries;
 
     @JsonProperty("release_date")
-    private String releaseDate;
+    private LocalDate releaseDate;
 
     private long revenue;
 
