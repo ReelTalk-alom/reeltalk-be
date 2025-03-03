@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -34,7 +35,7 @@ public class SeriesTabResponse {
     private String posterPath;
 
     @JsonProperty("first_air_date")
-    private String firstAirDate;
+    private LocalDate firstAirDate;
 
     private String title;
 

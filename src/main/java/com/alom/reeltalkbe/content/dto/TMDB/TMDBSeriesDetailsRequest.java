@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -25,7 +26,8 @@ public class TMDBSeriesDetailsRequest {
     private List<Integer> episodeRunTime;
 
     @JsonProperty("first_air_date")
-    private String firstAirDate;
+    private LocalDate firstAirDate;
+    //private String firstAirDate;
 
     private List<Genre> genres;
 

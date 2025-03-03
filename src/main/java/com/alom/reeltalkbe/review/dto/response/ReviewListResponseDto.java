@@ -7,6 +7,7 @@ import lombok.Getter;
 import org.springframework.data.domain.Page;
 
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -17,7 +18,7 @@ public class ReviewListResponseDto {
     private final String title;
     private final String genre;
     private final String nation;
-    private final String publishedAt;
+    private final LocalDate publishedAt;
     private final Double ratingAverage;
 
     private final List<ReviewResponseDto> result;
@@ -27,7 +28,7 @@ public class ReviewListResponseDto {
     private final int currentPage;  // 현재 페이지 번호
 
     @Builder
-    private ReviewListResponseDto(Long contentId, String title, String genre, String nation, String publishedAt,
+    private ReviewListResponseDto(Long contentId, String title, String genre, String nation, LocalDate publishedAt,
                                   Double ratingAverage, List<ReviewResponseDto> result, int totalPages,
                                   long totalElements, int currentPage) {
         this.contentId = contentId;

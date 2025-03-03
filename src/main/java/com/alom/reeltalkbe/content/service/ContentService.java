@@ -1,6 +1,7 @@
 package com.alom.reeltalkbe.content.service;
 
 import com.alom.reeltalkbe.common.exception.BaseException;
+import com.alom.reeltalkbe.common.response.BaseResponse;
 import com.alom.reeltalkbe.common.response.BaseResponseStatus;
 import com.alom.reeltalkbe.content.domain.Content;
 import com.alom.reeltalkbe.content.domain.ContentType;
@@ -16,6 +17,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -81,6 +83,38 @@ public class ContentService {
         if (sort.equals("firstAirDate")) {
             contentList = contentRepository.findTop10ByContentTypeOrderByReleaseDateAsc(ContentType.SERIES);
         }
+
+        List<Long> contentIds = contentList.stream()
+                .map(Content::getId)
+                .collect(Collectors.toList());
+
+        List<Review> reviewList = reviewRepository.findTop10ByContentIdIn(contentIds);
+
+        Map<Long, List<Review>> reviewsByContent = reviewList.stream()
+                .collect(Collectors.groupingBy(review -> review.getContent().getId()));
+
+        return contentList.stream()
+                .map(content ->
+                        SeriesTabResponse.of(content, reviewsByContent.getOrDefault(content.getId(), Collections.emptyList())))
+                .toList();
+    }
+
+    public List<SeriesTabResponse> findSeriesWithReviewsByFilter(String filter) {
+        List<Content> contentList = new ArrayList<>();
+
+        if (filter.equals("top-rated")) {
+            contentList = contentRepository.findByContentTypeOrderByRatingAverageDesc(ContentType.SERIES);
+        }
+        else if (filter.equals("now-playing")) {
+            contentList = contentRepository.findByContentTypeAndReleaseDateBeforeOrderByReleaseDateDesc(
+                    ContentType.SERIES, LocalDate.now());
+        }
+        else if (filter.equals("up-coming")) {
+            contentList = contentRepository.findByContentTypeAndReleaseDateAfterOrderByReleaseDateAsc(
+                    ContentType.SERIES, LocalDate.now());
+        }
+        else
+            throw new BaseException(BaseResponseStatus.INVALID_REQUEST);
 
         List<Long> contentIds = contentList.stream()
                 .map(Content::getId)

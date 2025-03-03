@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -34,7 +35,7 @@ public class MovieTabResponse {
     private String posterPath;
 
     @JsonProperty("release_date")
-    private String releaseDate;
+    private LocalDate releaseDate;
 
     private String title;
 

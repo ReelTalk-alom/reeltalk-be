@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -43,7 +44,8 @@ public class Content extends BaseEntity {
     @JsonProperty("poster_path")
     private String posterPath;
     @JsonProperty("release_date")
-    private String releaseDate;
+    private LocalDate releaseDate;
+    //private String releaseDate;
     private int runtime;
     private String tagline;
 

@@ -46,6 +46,10 @@ public class ContentController {
                 .findContentDetailsByContentId(contentId));
     }
 
+    @GetMapping("series/{filter}")
+    public BaseResponse<?> getSeriesTopRated(@PathVariable String filter) {
+        return new BaseResponse<>(contentService.findSeriesWithReviewsByFilter(filter));
+    }
 
 
     // --------------- 테스트용 메서드 ----------------------
