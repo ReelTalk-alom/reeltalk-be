@@ -6,6 +6,7 @@ import com.alom.reeltalkbe.content.domain.GenreListConverter;
 import com.alom.reeltalkbe.review.domain.Review;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Convert;
+import java.time.LocalDate;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +35,7 @@ public class MovieTabResponse {
     private String posterPath;
 
     @JsonProperty("release_date")
-    private String releaseDate;
+    private LocalDate releaseDate;
 
     private String title;
 
