@@ -5,7 +5,7 @@ import com.alom.reeltalkbe.common.exception.BaseException;
 import com.alom.reeltalkbe.common.response.BaseResponseStatus;
 import com.alom.reeltalkbe.content.repository.ContentRepository;
 import com.alom.reeltalkbe.talk.domain.TalkMessage;
-import com.alom.reeltalkbe.talk.dto.TalkMessageDto;
+import com.alom.reeltalkbe.talk.dto.TalkMessageRequest;
 import com.alom.reeltalkbe.talk.repository.TalkMessageRepository;
 import com.alom.reeltalkbe.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,38 +24,39 @@ public class TalkService {
         return talkMessageRepository.findAllByContentId(contendId);
     }
 
-    public TalkMessage saveTalkMessage(TalkMessageDto talkMessageDto) {
-        talkMessageDto.setUser(userRepository.findById(talkMessageDto.getUserId())
+    public TalkMessage saveTalkMessage(TalkMessageRequest request) {
+        request.setUser(userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER)));
 
         return talkMessageRepository.save(
-                TalkMessage.of(
-                        talkMessageDto,
-                        contentRepository.findById(talkMessageDto.getContentId()).orElseThrow(() -> new BaseException(BaseResponseStatus.CONTENT_NOT_FOUND))
-                )
+            TalkMessage.of(request, contentRepository.findById(request.getContentId())
+                    .orElseThrow(() -> new BaseException(BaseResponseStatus.CONTENT_NOT_FOUND)))
         );
     }
 
-    public TalkMessage updateTalkMessage(TalkMessageDto talkMessageDto) {
-        TalkMessage talkMessage = talkMessageRepository.findById(talkMessageDto.getMessageId())
+    public TalkMessage updateTalkMessage(TalkMessageRequest talkMessageRequest) {
+        TalkMessage talkMessage = talkMessageRepository.findById(talkMessageRequest.getMessageId())
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.MESSAGE_NOT_FOUND));
 
-        throwExceptionIfNotEqualUser(talkMessage, talkMessageDto);
+        throwExceptionIfNotEqualUser(talkMessage, talkMessageRequest);
 
-        talkMessage.updateMessage(talkMessageDto);
+        talkMessage.updateMessage(talkMessageRequest);
         return talkMessageRepository.save(talkMessage);
     }
 
-    public void deleteTalkMessage(TalkMessageDto talkMessageDto) {
-        TalkMessage talkMessage = talkMessageRepository.findById(talkMessageDto.getMessageId())
+    public void deleteTalkMessage(TalkMessageRequest talkMessageRequest) {
+        TalkMessage talkMessage = talkMessageRepository.findById(talkMessageRequest.getMessageId())
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.MESSAGE_NOT_FOUND));
 
-        throwExceptionIfNotEqualUser(talkMessage, talkMessageDto);
+        throwExceptionIfNotEqualUser(talkMessage, talkMessageRequest);
 
-        talkMessageRepository.deleteById(talkMessageDto.getMessageId());
+        talkMessageRepository.deleteById(talkMessageRequest.getMessageId());
     }
 
-    private void throwExceptionIfNotEqualUser(TalkMessage message, TalkMessageDto dto) {
+
+    //-------------------- 내부 메서드 ---------------------
+
+    private void throwExceptionIfNotEqualUser(TalkMessage message, TalkMessageRequest dto) {
         if(!message.getUser().getId().equals(dto.getUserId())) {
             throw new BaseException(BaseResponseStatus.NOT_YOUR_MESSAGE);
         }

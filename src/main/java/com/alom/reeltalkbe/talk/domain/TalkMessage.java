@@ -3,7 +3,7 @@ package com.alom.reeltalkbe.talk.domain;
 
 import com.alom.reeltalkbe.common.BaseEntity;
 import com.alom.reeltalkbe.content.domain.Content;
-import com.alom.reeltalkbe.talk.dto.TalkMessageDto;
+import com.alom.reeltalkbe.talk.dto.TalkMessageRequest;
 import com.alom.reeltalkbe.user.domain.User;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -44,7 +44,7 @@ public class TalkMessage extends BaseEntity {
 
     public TalkMessage() {}
 
-    public static TalkMessage of(TalkMessageDto dto, Content content) {
+    public static TalkMessage of(TalkMessageRequest dto, Content content) {
         return TalkMessage.builder()
                 .message(dto.getMessage())
                 .content(content)
@@ -52,7 +52,7 @@ public class TalkMessage extends BaseEntity {
                 .user(dto.getUser())
                 .build();
     }
-    public void updateMessage(TalkMessageDto dto) {
+    public void updateMessage(TalkMessageRequest dto) {
         this.message = dto.getMessage();
     }
 }
