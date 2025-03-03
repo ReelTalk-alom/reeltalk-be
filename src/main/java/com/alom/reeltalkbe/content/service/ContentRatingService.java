@@ -4,7 +4,7 @@ import com.alom.reeltalkbe.common.exception.BaseException;
 import com.alom.reeltalkbe.common.response.BaseResponseStatus;
 import com.alom.reeltalkbe.content.domain.Content;
 import com.alom.reeltalkbe.content.domain.ContentRating;
-import com.alom.reeltalkbe.content.dto.RatingDto;
+import com.alom.reeltalkbe.content.dto.RatingRequest;
 import com.alom.reeltalkbe.content.repository.ContentRepository;
 import com.alom.reeltalkbe.content.repository.RatingRepository;
 import com.alom.reeltalkbe.user.repository.UserRepository;
@@ -19,7 +19,7 @@ public class ContentRatingService {
     private final ContentRepository contentRepository;
     private final RatingRepository ratingRepository;
 
-    public Content addRating(Long contentId, Long userId, RatingDto ratingDto) {
+    public Content addRating(Long contentId, Long userId, RatingRequest ratingRequest) {
         // 이미 평가한 컨텐츠라면 예외 처리
         if (ratingRepository.findRatingByContentIdAndUserId(contentId, userId).isPresent()) {
             throw new BaseException(BaseResponseStatus.EXIST_RATING);
@@ -35,7 +35,7 @@ public class ContentRatingService {
                 .user(userRepository.findById(userId)
                         .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER)))
                 .content(content)
-                .ratingValue(ratingDto.getRating())
+                .ratingValue(ratingRequest.getRating())
                 .build();
 
         // 컨텐츠 평균 평점 계산 후 rating 객체 DB에 저장

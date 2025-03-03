@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @Builder
 // todo : @NotNull , @Valid, bindingResult 고민 후 dto 나눌지도?
-public class TalkMessageDto {
+public class TalkMessageRequest {
     private Long messageId;
     private Long contentId;
     private Long userId;

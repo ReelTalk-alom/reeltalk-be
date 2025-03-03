@@ -5,10 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository <Review, Long> {
     Page<Review> findByContentId(Long contentId, Pageable pageable);
@@ -16,9 +14,9 @@ public interface ReviewRepository extends JpaRepository <Review, Long> {
     List<Review> findByUserId(Long userId);
 
 
-    List<Review> findTop10ByContentIdIn(List<Long> contentIds);
+    List<Review> findTop10ByContentIdInOrderByReviewLikesDesc(List<Long> contentIds);
 
-    List<Review> findAllByContentId(Long id);
+    List<Review> findTop10ByContentIdOrderByReviewLikesDesc(Long id);
 
     @Query("SELECT r FROM Review r " +
             "LEFT JOIN r.reviewLikes rl " +

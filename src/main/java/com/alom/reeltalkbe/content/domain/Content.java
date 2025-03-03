@@ -5,6 +5,7 @@ import com.alom.reeltalkbe.common.BaseEntity;
 import com.alom.reeltalkbe.content.dto.TMDB.TMDBMovieDetailsRequest;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -42,7 +43,7 @@ public class Content extends BaseEntity {
     @JsonProperty("poster_path")
     private String posterPath;
     @JsonProperty("release_date")
-    private String releaseDate;
+    private LocalDate releaseDate;
     private int runtime;
     private String tagline;
 
