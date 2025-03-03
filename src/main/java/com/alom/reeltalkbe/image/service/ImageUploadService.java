@@ -32,7 +32,7 @@ public class ImageUploadService {
     public String uploadFile(MultipartFile multipartFile){
 
         if (multipartFile == null || multipartFile.isEmpty()) {
-            return null;
+            throw new BaseException(BaseResponseStatus.INVALID_IMAGE_FORMAT);
         }
 
         String fileName = createFileName(multipartFile.getOriginalFilename());
@@ -61,7 +61,7 @@ public class ImageUploadService {
         try{
             return fileName.substring(fileName.lastIndexOf("."));
         } catch (StringIndexOutOfBoundsException e){
-            throw new BaseException(BaseResponseStatus.FAIL_IMAGE_CONVERT);
+            throw new BaseException(BaseResponseStatus.IMAGE_CONVERT_FAILED);
         }
     }
 
@@ -78,7 +78,7 @@ public class ImageUploadService {
 
         if (!isExist) {
             System.out.println("파일이 존재하지 않습니다: " + fileName);
-            throw new BaseException(BaseResponseStatus.FILE_NOT_FOUND);
+            throw new BaseException(BaseResponseStatus.IMAGE_DELETE_FAILED);
         }
 
         // S3에서 파일 삭제
