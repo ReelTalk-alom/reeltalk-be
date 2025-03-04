@@ -44,6 +44,17 @@ public enum BaseResponseStatus {
     COMMENT_NOT_FOUND(false, HttpStatus.NO_CONTENT.value(), "댓글이 존재하지 않습니다."),
     INVALID_COMMENT(false, HttpStatus.NOT_FOUND.value(), "존재하지 않은 댓글입니다."),
 
+    // JSON 처리 오류
+    JSON_CONVERT_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "JSON 변환 중 오류가 발생했습니다."),
+    JSON_PARSE_ERROR(false, HttpStatus.BAD_REQUEST.value(), "JSON 파싱 중 오류가 발생했습니다."),
+
+    // 이미지 처리 오류
+    IMAGE_UPLOAD_FAILED(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "이미지 업로드 중 오류가 발생했습니다."),
+    IMAGE_CONVERT_FAILED(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "이미지 변환에 실패했습니다."),
+    IMAGE_DELETE_FAILED(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "이미지 삭제 중 오류가 발생했습니다."),
+    FILE_NOT_FOUND(false, HttpStatus.NOT_FOUND.value(), "삭제하려는 파일이 존재하지 않습니다."),
+    INVALID_IMAGE_FORMAT(false, HttpStatus.BAD_REQUEST.value(), "올바르지 않은 이미지 형식입니다."),
+
     // 5xx : server error
     FAIL_REVIEW_POST(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "리뷰 작성에 실패했습니다."),
     FAIL_COMMENT_POST(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "댓글 작성에 실패했습니다."),
