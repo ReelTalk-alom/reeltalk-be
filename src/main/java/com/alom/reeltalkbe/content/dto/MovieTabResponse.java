@@ -21,7 +21,6 @@ public class MovieTabResponse {
     private Long id;
     private boolean adult;
 
-    @JsonProperty("backdrop_path")
     private String backdropPath;
 
     @Convert(converter = GenreListConverter.class)
@@ -32,10 +31,8 @@ public class MovieTabResponse {
     private double popularity;
     private double rating;
 
-    @JsonProperty("poster_path")
     private String posterPath;
 
-    @JsonProperty("release_date")
     private LocalDate releaseDate;
 
     private String title;
