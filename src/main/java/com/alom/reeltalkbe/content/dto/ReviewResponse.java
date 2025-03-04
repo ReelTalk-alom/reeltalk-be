@@ -2,7 +2,6 @@ package com.alom.reeltalkbe.content.dto;
 
 import com.alom.reeltalkbe.image.domain.Image;
 import com.alom.reeltalkbe.review.domain.Review;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
@@ -10,20 +9,15 @@ import lombok.Data;
 public class ReviewResponse {
 
     private Long id;
-    @JsonProperty("content_id")
     private Long contentId;
-    @JsonProperty("user_id")
     private Long userId;
     private Image image;
     private String overview;
-    @JsonProperty("video_path")
     private String videoPath;
     private Long duration;
     private String title;
 
-    @JsonProperty("like_count")
     private Long likeCount;
-    @JsonProperty("hate_count")
     private Long hateCount;
 
     @Builder
