@@ -6,17 +6,24 @@ import com.alom.reeltalkbe.content.dto.TMDB.TMDBMovieDetailsRequest;
 import com.alom.reeltalkbe.content.dto.TMDB.TMDBSeriesDetailsRequest;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
 import java.util.List;
 
+/* ㅁㅁ 테스터용 추가
+@Builder
+@AllArgsConstructor
+*/
+
 @Entity
 @Table(name = "content")
 @Getter
 public class Content extends BaseEntity {
     @Id
+    // @GeneratedValue(strategy = GenerationType.IDENTITY)  //ㅁㅁ 테스터용 자동 증가 추가
     private Long id;
 
     @JsonProperty("en_title")
@@ -106,6 +113,16 @@ public class Content extends BaseEntity {
         this.numberOfSeasons = request.getNumberOfSeasons();
         this.numberOfEpisodes = request.getNumberOfEpisodes();
     }
+
+    /* ㅁㅁ 테스터용 추가
+    @Builder
+    public Content(String enTitle, String korTitle, String country, ContentType contentType) {
+        this.enTitle = enTitle;
+        this.korTitle = korTitle;
+        this.country = country;
+        this.contentType = contentType;
+    }
+    */
 
     public Content() {}
 
