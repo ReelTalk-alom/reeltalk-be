@@ -1,7 +1,9 @@
 package com.alom.reeltalkbe.user.service;
 
 
+import com.alom.reeltalkbe.common.exception.BaseException;
 import com.alom.reeltalkbe.common.response.BaseResponse;
+import com.alom.reeltalkbe.common.response.BaseResponseStatus;
 import com.alom.reeltalkbe.image.service.ImageUploadService;
 import com.alom.reeltalkbe.user.domain.User;
 import com.alom.reeltalkbe.user.dto.CustomUserDetails;
@@ -40,13 +42,13 @@ public class UserService {
         // 이메일 중복 체크
         Optional<User> existingUser = userRepository.findByEmail(joinDto.getEmail());
         if (existingUser.isPresent()) {
-            throw new IllegalStateException("이미 사용 중인 이메일입니다.");
+            throw new BaseException(BaseResponseStatus.EXIST_EMAIL);
         }
 
         // 닉네임 중복 체크
         Optional<User> existingNickname = userRepository.findByUsername(joinDto.getUsername());
         if (existingNickname.isPresent()) {
-            throw new IllegalStateException("이미 사용 중인 닉네임입니다.");
+            throw new BaseException(BaseResponseStatus.EXIST_USERNAME);
         }
 
         User user = User.builder()
@@ -63,7 +65,7 @@ public class UserService {
     @Transactional
     public void deleteUser(Long userId, HttpServletResponse response) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
 
         // 🔥 username을 기준으로 refresh token 삭제
         refreshRepository.deleteByUsername(user.getUsername());
@@ -85,7 +87,7 @@ public class UserService {
         if (principal instanceof CustomUserDetails) {
             String username = ((CustomUserDetails) principal).getUsername();
             User user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                    .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
 
             String imageUrl = imageUploadService.uploadFile(multipartFile);
             user.setImageUrl(imageUrl);
@@ -103,7 +105,7 @@ public class UserService {
         if (principal instanceof CustomUserDetails) {
             String username = ((CustomUserDetails) principal).getUsername();
             User user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                    .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
 
             imageUploadService.deleteFile(user.getImageUrl());
             user.setImageUrl(null);
@@ -119,7 +121,7 @@ public class UserService {
         if (principal instanceof CustomUserDetails) {
             String username = ((CustomUserDetails) principal).getUsername();
             User user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                    .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
 
             return user.getImageUrl();
         } else {

@@ -1,5 +1,7 @@
 package com.alom.reeltalkbe.image.service;
 
+import com.alom.reeltalkbe.common.exception.BaseException;
+import com.alom.reeltalkbe.common.response.BaseResponseStatus;
 import com.alom.reeltalkbe.image.domain.Image;
 import com.alom.reeltalkbe.image.repository.ImageRepository;
 import com.amazonaws.services.s3.AmazonS3;
@@ -30,7 +32,7 @@ public class ImageUploadService {
     public String uploadFile(MultipartFile multipartFile){
 
         if (multipartFile == null || multipartFile.isEmpty()) {
-            return null;
+            throw new BaseException(BaseResponseStatus.INVALID_IMAGE_FORMAT);
         }
 
         String fileName = createFileName(multipartFile.getOriginalFilename());
@@ -42,7 +44,7 @@ public class ImageUploadService {
             amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
         } catch (IOException e){
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
+            throw new BaseException(BaseResponseStatus.IMAGE_UPLOAD_FAILED);
         }
 
         // return image url
@@ -59,7 +61,7 @@ public class ImageUploadService {
         try{
             return fileName.substring(fileName.lastIndexOf("."));
         } catch (StringIndexOutOfBoundsException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일" + fileName + ") 입니다.");
+            throw new BaseException(BaseResponseStatus.IMAGE_CONVERT_FAILED);
         }
     }
 
@@ -76,7 +78,7 @@ public class ImageUploadService {
 
         if (!isExist) {
             System.out.println("파일이 존재하지 않습니다: " + fileName);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "파일이 존재하지 않습니다: " + fileName);
+            throw new BaseException(BaseResponseStatus.IMAGE_DELETE_FAILED);
         }
 
         // S3에서 파일 삭제
