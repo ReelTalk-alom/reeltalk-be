@@ -31,13 +31,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
         System.out.println("doFilterInternal start");
 
-//        String requestURI = request.getRequestURI();
-//        // 회원가입 & 로그인 요청은 필터 적용 안 함
-//        if (requestURI.equals("/api/users/signup") || requestURI.equals("/api/users/login")) {
-//            filterChain.doFilter(request, response);
-//            return;
-//        }
-
         String accessToken = extractToken(request);
 
         // 토큰이 없으면 그대로 필터 체인 실행(권한이 필요 없는 요청)
@@ -46,15 +39,6 @@ public class JwtFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
-/*        System.out.println("authorization now");
-
-        // 토큰이 만료되었는지 확인
-        if (jwtUtil.isExpired(token)) {
-            System.out.println("token expired");
-            filterChain.doFilter(request, response);
-            return;
-        }*/
 
         // 토큰 만료 여부 확인, 만료시 다음 필터로 넘기지 않음
         try {
