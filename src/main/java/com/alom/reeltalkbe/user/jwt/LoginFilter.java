@@ -45,13 +45,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         try {
             // JSON 요청을 읽어와서 username과 password를 추출
             Map<String, String> requestBody = objectMapper.readValue(request.getInputStream(), Map.class);
-            String username = requestBody.get("username");
+            String email = requestBody.get("email");
             String password = requestBody.get("password");
 
-            System.out.println("로그인 요청 - username: " + username);
+            //System.out.println("로그인 요청 - username: " + username);
 
             // 스프링 시큐리티에서 username과 password를 검증하기 위해 토큰 생성
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password, null);
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password, null);
 
             // AuthenticationManager를 사용하여 인증 진행
             return authenticationManager.authenticate(authToken);
