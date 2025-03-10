@@ -48,18 +48,17 @@ public class UserService {
         this.reviewService = reviewService;  // 추가2
     }
 
-    // 회원가입 기능
-
-    //이메일 중복 체크
+    //회원가입 기능
+    @Transactional
     public User registerUser(JoinDto joinDto) {
-        Optional<User> existingUser = userRepository.findByEmail(joinDto.getEmail());
-        if (existingUser.isPresent()) {
-            throw new IllegalStateException("이미 사용 중인 이메일입니다.");
+        // 이메일 중복 체크
+        if (userRepository.findByEmail(joinDto.getEmail()).isPresent()) {
+            throw new BaseException(BaseResponseStatus.EXIST_EMAIL);
         }
-        //닉네임 중복 체크
-        Optional<User> existingNickname = userRepository.findByUsername(joinDto.getUsername());
-        if (existingNickname.isPresent()) {
-            throw new IllegalStateException("이미 사용 중인 닉네임입니다.");
+
+        // 닉네임 중복 체크
+        if (userRepository.findByUsername(joinDto.getUsername()).isPresent()) {
+            throw new BaseException(BaseResponseStatus.EXIST_USERNAME);
         }
 
         User user = User.builder()
@@ -69,15 +68,16 @@ public class UserService {
                 .role("ROLE_ADMIN")
                 .build();
 
-        // description이 없으면 기본 값 설정
-        if (joinDto.getDescription() == null || joinDto.getDescription().isEmpty()) {
-            user.setDescription("안녕하세요! 반갑습니다.");  // 기본값 설정
-        } else {
-            user.setDescription(joinDto.getDescription());
-        }
+        // description 기본값 설정
+        user.setDescription(
+                (joinDto.getDescription() == null || joinDto.getDescription().isEmpty())
+                        ? "안녕하세요! 반갑습니다."
+                        : joinDto.getDescription()
+        );
 
         return userRepository.save(user);
     }
+
 
     @Transactional
     public void deleteUser(Long userId, HttpServletResponse response) {
@@ -101,13 +101,13 @@ public class UserService {
     @Transactional
     public User updateMyPage(Long userId, MyPageUpdateRequestDto requestDto) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
 
-        // 닉네임 변경이 있는 경우만 검사 & 업데이트
+        // 닉네임 변경이 있는 경우만 검사하고 업데이트
         if (requestDto.getUsername() != null && !requestDto.getUsername().isEmpty()) {
             if (!user.getUsername().equals(requestDto.getUsername())) {
                 if (userRepository.findByUsername(requestDto.getUsername()).isPresent()) {
-                    throw new IllegalStateException("이미 사용 중인 닉네임입니다.");
+                    throw new BaseException(BaseResponseStatus.EXIST_USERNAME);
                 }
                 user.setUsername(requestDto.getUsername());  // 닉네임 변경 가능하게
             }
@@ -118,7 +118,7 @@ public class UserService {
             user.setDescription(requestDto.getDescription());
         }
 
-        return user;  //
+        return user;
     }
 
 
