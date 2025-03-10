@@ -70,5 +70,9 @@ public interface ReviewRepository extends JpaRepository <Review, Long> {
             "GROUP BY r.id, r.title, u.username, u.id, r.overview, r.videoPath, r.createdAt, r.duration, img.url " +
             "ORDER BY r.createdAt DESC")
     List<MyPageReviewDto> findRecentReviewsByUserId(@Param("userId") Long userId, Pageable pageable);
+
+    // 전체 리뷰 개수 조회
+    @Query("SELECT COUNT(r) FROM Review r")
+    long countAllReviews();
 }
 

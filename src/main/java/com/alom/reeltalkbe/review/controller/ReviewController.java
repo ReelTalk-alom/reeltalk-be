@@ -114,4 +114,10 @@ public class ReviewController {
         return new BaseResponse<>(likeType == LikeType.LIKE ? "좋아요 처리 완료" : " 싫어요 처리 완료");
     }
 
+    // 전체 리뷰 개수 조회 API
+    @GetMapping("/count")
+    public BaseResponse<Long> getTotalReviewCount() {
+        long count = reviewService.getTotalReviewCount();
+        return new BaseResponse<>(count);
+    }
 }
