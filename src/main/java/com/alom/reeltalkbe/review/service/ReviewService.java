@@ -208,5 +208,9 @@ public class ReviewService {
         }
     }
 
+    // 전체 리뷰 개수 반환
+    public long getTotalReviewCount() {
+        return reviewRepository.countAllReviews();
+    }
 
 }
