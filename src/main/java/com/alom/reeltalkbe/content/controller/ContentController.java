@@ -65,4 +65,11 @@ public class ContentController {
         return new BaseResponse<>(contentService.addContent(new Content(request)));
     }
 
+    // 자동 최신화 기능 테스트
+    @GetMapping("/series/test")
+    public BaseResponse<String> getNewSeries() {
+        contentService.updateLatestSeries();
+        return new BaseResponse<>("success");
+    }
+
 }

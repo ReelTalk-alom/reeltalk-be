@@ -9,6 +9,7 @@ import com.alom.reeltalkbe.content.dto.ContentDetailsResponse;
 import com.alom.reeltalkbe.content.dto.MovieTabResponse;
 import com.alom.reeltalkbe.content.dto.ReviewResponse;
 import com.alom.reeltalkbe.content.dto.SeriesTabResponse;
+import com.alom.reeltalkbe.content.dto.TMDB.TMDBSeriesDetailsRequest;
 import com.alom.reeltalkbe.content.repository.ContentRepository;
 import com.alom.reeltalkbe.review.domain.Review;
 import com.alom.reeltalkbe.review.repository.ReviewRepository;
@@ -16,22 +17,36 @@ import com.alom.reeltalkbe.talk.domain.TalkMessage;
 import com.alom.reeltalkbe.talk.repository.TalkMessageRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@EnableAsync  // 비동기 기능 활성화
 public class ContentService {
 
     private final ContentRepository contentRepository;
     private final ReviewRepository reviewRepository;
     private final TalkMessageRepository talkMessageRepository;
+    private final TMDBService tmdbService;
+
+    private final RestTemplate restTemplate;
+
+    private static final String TMDB_API_KEY = "023d161ee083b158d3fb00e7c93f6687";
+    private static final String[] TMDB_SERIES_URL = {
+            "https://api.themoviedb.org/3/tv/top_rated?api_key=" + TMDB_API_KEY + "&language=ko-KR&page=1",
+            "https://api.themoviedb.org/3/tv/airing_today?api_key=" + TMDB_API_KEY + "&language=ko-KR&page=1",
+            "https://api.themoviedb.org/3/tv/on_the_air?api_key=" + TMDB_API_KEY + "&language=ko-KR&page=1"
+    };
+
     //private final CharacterRepository characterRepository;
     // tmdb 이슈로 캐릭터는 고민해야함
 
@@ -119,11 +134,11 @@ public class ContentService {
         if (filter.equals("top-rated")) {
             contentList = contentRepository.findByContentTypeOrderByRatingAverageDesc(ContentType.SERIES);
         }
-        else if (filter.equals("now-playing")) {
+        else if (filter.equals("now-playing")) {    // airing_today : 오늘 방영
             contentList = contentRepository.findByContentTypeAndReleaseDateBeforeOrderByReleaseDateDesc(
                     ContentType.SERIES, LocalDate.now());
         }
-        else if (filter.equals("up-coming")) {
+        else if (filter.equals("up-coming")) {      // on_the_air : 앞으로 7일 동안 방영되는
             contentList = contentRepository.findByContentTypeAndReleaseDateAfterOrderByReleaseDateAsc(
                     ContentType.SERIES, LocalDate.now());
         }
@@ -145,7 +160,45 @@ public class ContentService {
                 .toList();
     }
 
+    public void updateLatestSeries() {
+        CompletableFuture<List<TMDBSeriesDetailsRequest>> futureSeries = tmdbService.fetchLatestSeriesFromTMDB();
+        List<TMDBSeriesDetailsRequest> detailedRequests = futureSeries.join();
+
+        if (detailedRequests.isEmpty()) {
+            System.out.println("가져온 TMDB 데이터 없음.");
+            return;
+        }
+
+        List<String> titleList = detailedRequests.stream()
+                .map(TMDBSeriesDetailsRequest::getOriginalName)
+                .collect(Collectors.toList());
+
+        List<LocalDate> dateList = detailedRequests.stream()
+                .map(TMDBSeriesDetailsRequest::getFirstAirDate)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        Set<String> existingTitles = contentRepository.findExistingTitles(titleList, dateList).stream()
+                .map(result -> Objects.toString(result[0], "") + Objects.toString(result[1], ""))
+                .collect(Collectors.toSet());
+
+        List<Content> newSeriesList = detailedRequests.stream()
+                .filter(request -> !existingTitles.contains(
+                        request.getOriginalName() + Optional.ofNullable(request.getFirstAirDate()).map(Object::toString).orElse("")
+                ))
+                .map(TMDBSeriesDetailsRequest::toEntity)
+                .collect(Collectors.toList());
+
+        if (!newSeriesList.isEmpty()) {
+            contentRepository.saveAll(newSeriesList);
+            System.out.println("새로운 시리즈 저장 개수: " + newSeriesList.size());
+        }
+    }
+
+
+
     // ------------------ 테스트용 메서드 ------------------------
+
     public Content addContent(Content content) {
         return contentRepository.save(content);
     }

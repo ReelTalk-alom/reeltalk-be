@@ -1,5 +1,6 @@
 package com.alom.reeltalkbe.content.dto.TMDB;
 
+import com.alom.reeltalkbe.content.domain.Content;
 import com.alom.reeltalkbe.content.domain.Genre;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -201,4 +202,9 @@ public class TMDBSeriesDetailsRequest {
         private String iso6391;
         private String name;
     }
+
+    public Content toEntity() {
+        return new Content(this);
+    }
+
 }
