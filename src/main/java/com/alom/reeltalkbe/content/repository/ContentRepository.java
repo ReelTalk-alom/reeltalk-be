@@ -14,9 +14,9 @@ import java.util.List;
 public interface ContentRepository extends JpaRepository<Content, Long> {
     List<Content> findTop10ByOrderByReleaseDateDesc();
     List<Content> findTop10ByOrderByRatingAverageDesc();
+    List<Content> findTop3ByOrderByRatingAverageDesc();
     List<Content> findTop10ByReleaseDateBetweenOrderByPopularityDesc(LocalDate today, LocalDate monthLater);
     List<Content> findTop10ByReleaseDateAfterOrderByReleaseDateAsc(LocalDate today);
-
 
     List<Content> findTop10ByContentTypeOrderByReleaseDateAsc(ContentType contentType);
 

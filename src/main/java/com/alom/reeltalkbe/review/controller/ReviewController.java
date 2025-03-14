@@ -120,4 +120,17 @@ public class ReviewController {
         long count = reviewService.getTotalReviewCount();
         return new BaseResponse<>(count);
     }
+
+    //샘플 화면?
+    @GetMapping("/sample")
+    public BaseResponse<List<ReviewListResponseDto>> getSampleReviews(){
+        List<ReviewListResponseDto> reviewListResponseDtos = reviewService.reviewSample();
+        return new BaseResponse<>(reviewListResponseDtos);
+    }
+    @GetMapping("/random")
+    public BaseResponse<List<ReviewResponseDto>> getRandomReviews(){
+        List<ReviewResponseDto> reviewResponseDtos = reviewService.randomReview();
+        return new BaseResponse<>(reviewResponseDtos);
+    }
+
 }

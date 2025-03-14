@@ -2,6 +2,7 @@ package com.alom.reeltalkbe.review.service;
 
 
 import com.alom.reeltalkbe.common.exception.BaseException;
+import com.alom.reeltalkbe.common.response.BaseResponse;
 import com.alom.reeltalkbe.common.response.BaseResponseStatus;
 import com.alom.reeltalkbe.content.domain.Content;
 import com.alom.reeltalkbe.content.repository.ContentRepository;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,7 +42,7 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final ReviewLikeRepository reviewLikeRepository;
     private final YouTubeService youTubeService;
-
+    private final Random random =new Random();
 
 
     public ReviewResponseDto registerReview(Long userId, ReviewRequestDto requestDto) {
@@ -207,10 +209,60 @@ public class ReviewService {
             throw new BaseException(BaseResponseStatus.DATABASE_INSERT_ERROR); // 5xx
         }
     }
-
+    @Transactional(readOnly = true)
     // 전체 리뷰 개수 반환
     public long getTotalReviewCount() {
         return reviewRepository.countAllReviews();
     }
 
+
+    //샘플
+    @Transactional(readOnly = true)
+    public List<ReviewListResponseDto> reviewSample() {
+        // 평점이 높은 상위 3개 콘텐츠 가져오기
+        List<Content> topContents = contentRepository.findTop3ByOrderByRatingAverageDesc();
+
+        //각 콘텐츠별로 최신 리뷰 10개씩 가져오기
+        return topContents.stream()
+                .map(content -> {
+                    // 최신 리뷰 10개 가져오기 (좋아요 순 정렬)
+                    List<ReviewResponseDto> reviews = reviewRepository
+                            .findTop10ByContentIdOrderByReviewLikesDesc(content.getId())
+                            .stream()
+                            .map(ReviewResponseDto::fromEntity)
+                            .collect(Collectors.toList());
+
+                    // DTO 변환
+                    return ReviewListResponseDto.builder()
+                            .contentId(content.getId())
+                            .title(content.getKorTitle())
+                            .ratingAverage(content.getRatingAverage())
+                            .result(reviews)
+                            .totalPages(1)
+                            .totalElements(reviews.size())
+                            .currentPage(1)
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    //리뷰 20개 뽑기(샘플)
+    public List<ReviewResponseDto> randomReview(){
+        List<Review> allReviews = reviewRepository.findAll(); // 모든 리뷰 가져오기
+
+        if (allReviews.size() <= 20) {
+            // 리뷰 개수가 20개 이하이면 그냥 전체 반환
+            return allReviews.stream()
+                    .map(ReviewResponseDto::fromEntity)
+                    .collect(Collectors.toList());
+        }
+
+        // 리뷰 랜덤으로 20개 선택
+        return random.ints(0, allReviews.size()) // 0부터 리뷰 개수까지 랜덤한 인덱스 생성
+                .distinct() // 중복 제거
+                .limit(20) // 20개 선택
+                .mapToObj(allReviews::get) // 해당 인덱스의 리뷰 가져오기
+                .map(ReviewResponseDto::fromEntity) // DTO로 변환
+                .collect(Collectors.toList()); // 리스트로 반환
+    }
 }
