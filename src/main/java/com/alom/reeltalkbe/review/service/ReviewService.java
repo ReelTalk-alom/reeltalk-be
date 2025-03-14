@@ -2,6 +2,7 @@ package com.alom.reeltalkbe.review.service;
 
 
 import com.alom.reeltalkbe.common.exception.BaseException;
+import com.alom.reeltalkbe.common.response.BaseResponse;
 import com.alom.reeltalkbe.common.response.BaseResponseStatus;
 import com.alom.reeltalkbe.content.domain.Content;
 import com.alom.reeltalkbe.content.repository.ContentRepository;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,7 +42,7 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final ReviewLikeRepository reviewLikeRepository;
     private final YouTubeService youTubeService;
-
+    private final Random random =new Random();
 
 
     public ReviewResponseDto registerReview(Long userId, ReviewRequestDto requestDto) {
@@ -207,10 +209,64 @@ public class ReviewService {
             throw new BaseException(BaseResponseStatus.DATABASE_INSERT_ERROR); // 5xx
         }
     }
-
+    @Transactional(readOnly = true)
     // 전체 리뷰 개수 반환
     public long getTotalReviewCount() {
         return reviewRepository.countAllReviews();
     }
 
+
+    //샘플
+    @Transactional(readOnly = true)
+    public List<ReviewListResponseDto> reviewSample() {
+        // 특정 ID(238, 278, 13)의 콘텐츠 조회
+        Content content1 = contentRepository.findById(278L)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.CONTENT_NOT_FOUND));
+        Content content2 = contentRepository.findById(13L)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.CONTENT_NOT_FOUND));
+        Content content3 = contentRepository.findById(238L)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.CONTENT_NOT_FOUND));
+
+        Pageable pageable = PageRequest.of(0, 10); // 상위 10개 리뷰만 조회
+
+        // 리뷰 가져오기 및 DTO 변환
+        Page<ReviewResponseDto> reviews1 = reviewRepository.findByContentId(content1.getId(), pageable)
+                .map(ReviewResponseDto::fromEntity);
+        Page<ReviewResponseDto> reviews2 = reviewRepository.findByContentId(content2.getId(), pageable)
+                .map(ReviewResponseDto::fromEntity);
+        Page<ReviewResponseDto> reviews3 = reviewRepository.findByContentId(content3.getId(), pageable)
+                .map(ReviewResponseDto::fromEntity);
+
+
+
+        // ReviewListResponseDto 리스트 생성
+        return List.of(
+                ReviewListResponseDto.fromEntity(content1, reviews1),
+
+                ReviewListResponseDto.fromEntity(content1, reviews2),
+
+                ReviewListResponseDto.fromEntity(content1, reviews3)
+        );
+    }
+
+
+    //리뷰 20개 뽑기(샘플)
+    public List<ReviewResponseDto> randomReview(){
+        List<Review> allReviews = reviewRepository.findAll(); // 모든 리뷰 가져오기
+
+        if (allReviews.size() <= 20) {
+            // 리뷰 개수가 20개 이하이면 그냥 전체 반환
+            return allReviews.stream()
+                    .map(ReviewResponseDto::fromEntity)
+                    .collect(Collectors.toList());
+        }
+
+        // 리뷰 랜덤으로 20개 선택
+        return random.ints(0, allReviews.size()) // 0부터 리뷰 개수까지 랜덤한 인덱스 생성
+                .distinct() // 중복 제거
+                .limit(20) // 20개 선택
+                .mapToObj(allReviews::get) // 해당 인덱스의 리뷰 가져오기
+                .map(ReviewResponseDto::fromEntity) // DTO로 변환
+                .collect(Collectors.toList()); // 리스트로 반환
+    }
 }
