@@ -42,7 +42,6 @@ public class ContentService {
     //private final CharacterRepository characterRepository;
     // tmdb 이슈로 캐릭터는 고민해야함
 
-    // 포스터 이미지와 링크만 가져오기?
     public List<Content> findAll() {
         return contentRepository.findAll();
     }
@@ -65,19 +64,20 @@ public class ContentService {
 
     public List<MovieTabResponse> findMoviesAndReviewsSortBy(String sort) {
 
-        List<Content> contentList = new ArrayList<>();
-        switch (sort) {
+        List<Content> contentList = switch (sort) {
             case "release-date" ->          // 개봉일자 오름차순 반환
-                    contentList = contentRepository.findTop10ByOrderByReleaseDateDesc();
+                    contentRepository.findTop10ByContentTypeOrderByReleaseDateDesc(ContentType.MOVIE);
             case "top-rated" ->             // 별점 내림차순 반환
-                    contentList = contentRepository.findTop10ByOrderByRatingAverageDesc();
+                    contentRepository.findTop10ByContentTypeOrderByReleaseDateDesc(ContentType.MOVIE);
             case "now-playing" ->           // 오늘 이전에 개봉한 영화 리스트 인기순 반환
-                    contentList = contentRepository.findTop10ByReleaseDateBetweenOrderByPopularityDesc(LocalDate.now().minusMonths(1), LocalDate.now().plusMonths(1));
+                    contentRepository.findTop10ByContentTypeAndReleaseDateBetweenOrderByPopularityDesc(
+                        ContentType.MOVIE, LocalDate.now().minusMonths(1), LocalDate.now().plusMonths(1));
             case "up-coming" ->             // 오늘 이후에 개봉할 영화를 개봉일자 오름차순으로 반환
-                    contentList = contentRepository.findTop10ByReleaseDateAfterOrderByReleaseDateAsc(LocalDate.now());
+                    contentRepository.findTop10ByContentTypeReleaseDateAfterOrderByReleaseDateAsc(
+                        ContentType.MOVIE, LocalDate.now());
             default ->                      // 분류기준 잘못되면 예외 처리
                     throw new BaseException(BaseResponseStatus.INVALID_QUERY_PARAMETER);
-        }
+        };
 
         List<Long> contentIds = contentList.stream()
                 .map(Content::getId)
@@ -98,66 +98,39 @@ public class ContentService {
     }
 
     public List<SeriesTabResponse> findSeriesAndReviewsSortBy(String sort) {
-        List<Content> contentList = new ArrayList<>();
-
-        if (sort.equals("firstAirDate")) {
-            contentList = contentRepository.findTop10ByContentTypeOrderByReleaseDateAsc(ContentType.SERIES);
-        }
-
-        List<Long> contentIds = contentList.stream()
-                .map(Content::getId)
-                .collect(Collectors.toList());
-
-        List<Review> reviewList = reviewRepository.findTop10ByContentIdInOrderByReviewLikesDesc(contentIds);
-
-        Map<Long, List<Review>> reviewsByContent = reviewList.stream()
-                .collect(Collectors.groupingBy(review -> review.getContent().getId()));
-
-        return contentList.stream()
-                .map(content ->
-                        SeriesTabResponse.of(content, reviewsByContent.getOrDefault(content.getId(), Collections.emptyList())))
-                .toList();
-    }
-
-    public List<SeriesTabResponse> findSeriesWithReviewsByFilter(String filter) {
-        List<Content> contentList = new ArrayList<>();
-
-        if (filter.equals("top-rated")) {
-            contentList = contentRepository.findByContentTypeOrderByRatingAverageDesc(ContentType.SERIES);
-        }
-        else if (filter.equals("now-playing")) {    // airing_today : 오늘 방영
-            contentList = contentRepository.findByContentTypeAndReleaseDateBeforeOrderByReleaseDateDesc(
-                    ContentType.SERIES, LocalDate.now());
-        }
-        else if (filter.equals("up-coming")) {      // on_the_air : 앞으로 7일 동안 방영되는
-            contentList = contentRepository.findByContentTypeAndReleaseDateAfterOrderByReleaseDateAsc(
-                    ContentType.SERIES, LocalDate.now());
-        }
-        else
-            throw new BaseException(BaseResponseStatus.INVALID_QUERY_PARAMETER);
+        List<Content> contentList = switch (sort) {
+          case "release-date" -> contentRepository.findTop10ByContentTypeOrderByReleaseDateAsc(ContentType.SERIES);
+          case "top-rated" -> contentRepository.findByContentTypeOrderByRatingAverageDesc(ContentType.SERIES);
+          case "now-playing" ->     // airing_today : 오늘 방영
+              contentRepository.findByContentTypeAndReleaseDateBeforeOrderByReleaseDateDesc(
+                  ContentType.SERIES, LocalDate.now());
+          case "up-coming" ->       // on_the_air : 앞으로 7일 동안 방영되는
+              contentRepository.findByContentTypeAndReleaseDateAfterOrderByReleaseDateAsc(
+                  ContentType.SERIES, LocalDate.now());
+          default -> throw new BaseException(BaseResponseStatus.INVALID_QUERY_PARAMETER);
+        };
 
         List<Long> contentIds = contentList.stream()
-                .map(Content::getId)
-                .collect(Collectors.toList());
+                  .map(Content::getId)
+                  .collect(Collectors.toList());
 
-        List<Review> reviewList = reviewRepository.findTop10ByContentIdInOrderByReviewLikesDesc(contentIds);
+          List<Review> reviewList = reviewRepository.findTop10ByContentIdInOrderByReviewLikesDesc(contentIds);
 
-        Map<Long, List<Review>> reviewsByContent = reviewList.stream()
-                .collect(Collectors.groupingBy(review -> review.getContent().getId()));
+          Map<Long, List<Review>> reviewsByContent = reviewList.stream()
+                  .collect(Collectors.groupingBy(review -> review.getContent().getId()));
 
-        return contentList.stream()
-                .map(content ->
-                        SeriesTabResponse.of(content, reviewsByContent.getOrDefault(content.getId(), Collections.emptyList())))
-                .toList();
+          return contentList.stream()
+                  .map(content ->
+                          SeriesTabResponse.of(content, reviewsByContent.getOrDefault(content.getId(), Collections.emptyList())))
+                  .toList();
     }
 
-    public void updateLatestSeries() {
+    public String updateLatestSeries() {
         CompletableFuture<List<TMDBSeriesDetailsRequest>> futureSeries = tmdbService.fetchLatestSeriesFromTMDB();
         List<TMDBSeriesDetailsRequest> detailedRequests = futureSeries.join();
 
         if (detailedRequests.isEmpty()) {
-            System.out.println("가져온 TMDB 데이터 없음.");
-            return;
+            return "가져온 TMDB 데이터 없음.";
         }
 
         List<String> titleList = detailedRequests.stream()
@@ -180,10 +153,8 @@ public class ContentService {
                 .map(TMDBSeriesDetailsRequest::toEntity)
                 .collect(Collectors.toList());
 
-        if (!newSeriesList.isEmpty()) {
-            contentRepository.saveAll(newSeriesList);
-            System.out.println("새로운 시리즈 저장 개수: " + newSeriesList.size());
-        }
+        contentRepository.saveAll(newSeriesList);
+        return "새로운 시리즈 저장 개수: " + newSeriesList.size();
     }
 
     public String updateLatestMovies() {

@@ -45,10 +45,10 @@ public class ContentController {
                 .findContentDetailsByContentId(contentId));
     }
 
-    @GetMapping("series/{filter}")
-    public BaseResponse<?> getSeriesTopRated(@PathVariable String filter) {
-        return new BaseResponse<>(contentService.findSeriesWithReviewsByFilter(filter));
-    }
+//    @GetMapping("/series")
+//    public BaseResponse<?> getSeriesTopRated(@RequestParam("sort") String filter) {
+//        return new BaseResponse<>(contentService.findSeriesWithReviewsByFilter(filter));
+//    }
 
 
     // --------------- 테스트용 메서드 ----------------------
@@ -67,8 +67,7 @@ public class ContentController {
     // 자동 최신화 기능 테스트
     @GetMapping("/series/test")
     public BaseResponse<String> getNewSeries() {
-        contentService.updateLatestSeries();
-        return new BaseResponse<>("success");
+        return new BaseResponse<>(contentService.updateLatestSeries());
     }
     // 자동 최신화 기능 테스트
     @GetMapping("/movies/test")
