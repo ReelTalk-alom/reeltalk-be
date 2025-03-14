@@ -1,5 +1,6 @@
 package com.alom.reeltalkbe.content.dto.TMDB;
 
+import com.alom.reeltalkbe.content.domain.Content;
 import com.alom.reeltalkbe.content.domain.Genre;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDate;
@@ -28,7 +29,7 @@ public class TMDBMovieDetailsRequest {
 
     private String homepage;
 
-    private long id;
+    private Long id;
 
     @JsonProperty("imdb_id")
     private String imdbId;
@@ -109,5 +110,8 @@ public class TMDBMovieDetailsRequest {
         @JsonProperty("iso_639_1")
         private String iso6391;
         private String name;
+    }
+    public Content toEntity() {
+      return new Content(this);
     }
 }
