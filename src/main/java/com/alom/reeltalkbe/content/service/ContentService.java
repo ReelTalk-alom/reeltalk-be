@@ -66,14 +66,14 @@ public class ContentService {
 
         List<Content> contentList = switch (sort) {
             case "release-date" ->          // 개봉일자 오름차순 반환
-                    contentRepository.findTop10ByContentTypeOrderByReleaseDateDesc(ContentType.MOVIE);
+                    contentRepository.findByContentTypeOrderByReleaseDateDesc(ContentType.MOVIE);
             case "top-rated" ->             // 별점 내림차순 반환
-                    contentRepository.findTop10ByContentTypeOrderByReleaseDateDesc(ContentType.MOVIE);
+                    contentRepository.findByContentTypeOrderByReleaseDateDesc(ContentType.MOVIE);
             case "now-playing" ->           // 오늘 이전에 개봉한 영화 리스트 인기순 반환
-                    contentRepository.findTop10ByContentTypeAndReleaseDateBetweenOrderByPopularityDesc(
+                    contentRepository.findByContentTypeAndReleaseDateBetweenOrderByPopularityDesc(
                         ContentType.MOVIE, LocalDate.now().minusMonths(1), LocalDate.now().plusMonths(1));
             case "up-coming" ->             // 오늘 이후에 개봉할 영화를 개봉일자 오름차순으로 반환
-                    contentRepository.findTop10ByContentTypeAndReleaseDateAfterOrderByReleaseDateAsc(
+                    contentRepository.findByContentTypeAndReleaseDateAfterOrderByReleaseDateAsc(
                         ContentType.MOVIE, LocalDate.now());
             default ->                      // 분류기준 잘못되면 예외 처리
                     throw new BaseException(BaseResponseStatus.INVALID_QUERY_PARAMETER);
@@ -83,7 +83,7 @@ public class ContentService {
                 .map(Content::getId)
                 .toList();
 
-        List<Review> reviewList = reviewRepository
+        List<Review> reviewList =  reviewRepository
                 .findTop10ByContentIdInOrderByReviewLikesDesc(contentIds);
 
         Map<Long, List<Review>> reviewsByContent = reviewList.stream()
@@ -99,7 +99,7 @@ public class ContentService {
 
     public List<SeriesTabResponse> findSeriesAndReviewsSortBy(String sort) {
         List<Content> contentList = switch (sort) {
-          case "release-date" -> contentRepository.findTop10ByContentTypeOrderByReleaseDateAsc(ContentType.SERIES);
+          case "release-date" -> contentRepository.findByContentTypeOrderByReleaseDateDesc(ContentType.SERIES);
           case "top-rated" -> contentRepository.findByContentTypeOrderByRatingAverageDesc(ContentType.SERIES);
           case "now-playing" ->     // airing_today : 오늘 방영
               contentRepository.findByContentTypeAndReleaseDateBeforeOrderByReleaseDateDesc(
