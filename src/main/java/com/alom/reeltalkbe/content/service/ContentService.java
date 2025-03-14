@@ -9,6 +9,7 @@ import com.alom.reeltalkbe.content.dto.ContentDetailsResponse;
 import com.alom.reeltalkbe.content.dto.MovieTabResponse;
 import com.alom.reeltalkbe.content.dto.ReviewResponse;
 import com.alom.reeltalkbe.content.dto.SeriesTabResponse;
+import com.alom.reeltalkbe.content.dto.TMDB.TMDBMovieDetailsRequest;
 import com.alom.reeltalkbe.content.dto.TMDB.TMDBSeriesDetailsRequest;
 import com.alom.reeltalkbe.content.repository.ContentRepository;
 import com.alom.reeltalkbe.review.domain.Review;
@@ -38,21 +39,11 @@ public class ContentService {
     private final TalkMessageRepository talkMessageRepository;
     private final TMDBService tmdbService;
 
-    private final RestTemplate restTemplate;
-
-    private static final String TMDB_API_KEY = "023d161ee083b158d3fb00e7c93f6687";
-    private static final String[] TMDB_SERIES_URL = {
-            "https://api.themoviedb.org/3/tv/top_rated?api_key=" + TMDB_API_KEY + "&language=ko-KR&page=1",
-            "https://api.themoviedb.org/3/tv/airing_today?api_key=" + TMDB_API_KEY + "&language=ko-KR&page=1",
-            "https://api.themoviedb.org/3/tv/on_the_air?api_key=" + TMDB_API_KEY + "&language=ko-KR&page=1"
-    };
-
     //private final CharacterRepository characterRepository;
     // tmdb 이슈로 캐릭터는 고민해야함
 
     // 포스터 이미지와 링크만 가져오기?
-    public List<Content> findPopularContents() {
-        //
+    public List<Content> findAll() {
         return contentRepository.findAll();
     }
 
@@ -195,7 +186,17 @@ public class ContentService {
         }
     }
 
-
+    public String updateLatestMovies() {
+        CompletableFuture<List<TMDBMovieDetailsRequest>> futureSeries = tmdbService.fetchLatestMoviesFromTMDB();
+        List<TMDBMovieDetailsRequest> detailedRequests = futureSeries.join();
+        if (detailedRequests.isEmpty()) {
+            return "가져온 TMDB 데이터 없음.";
+        }
+        contentRepository.saveAll(detailedRequests.stream()
+            .map(TMDBMovieDetailsRequest::toEntity)
+            .toList());
+        return "새로운 영화 저장 개수: " + detailedRequests.size();
+    }
 
     // ------------------ 테스트용 메서드 ------------------------
 
