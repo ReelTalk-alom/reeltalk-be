@@ -22,9 +22,8 @@ public class ContentController {
 
     // 메인화면 - 컬렉션 리스트 여러개
     @GetMapping("/browse")
-    public BaseResponse<String> getContents(@RequestParam("sort") String sort) {
-        contentService.findPopularContents();
-        return new BaseResponse<>("흠, 어떡하쥥");
+    public BaseResponse<List<Content>> getContents(@RequestParam("sort") String sort) {
+        return new BaseResponse<>(contentService.findAll());
     }
 
     // 영화 탭
@@ -33,7 +32,7 @@ public class ContentController {
         return new BaseResponse<>(contentService.findMoviesAndReviewsSortBy(sort));
     }
 
-    // todo: 시리즈 탭
+    // 시리즈 탭
     @GetMapping("/series")
     public BaseResponse<List<SeriesTabResponse>> getSeriesSortBy(@RequestParam("sort") String sort) {
         return new BaseResponse<>(contentService.findSeriesAndReviewsSortBy(sort));
@@ -46,10 +45,10 @@ public class ContentController {
                 .findContentDetailsByContentId(contentId));
     }
 
-    @GetMapping("series/{filter}")
-    public BaseResponse<?> getSeriesTopRated(@PathVariable String filter) {
-        return new BaseResponse<>(contentService.findSeriesWithReviewsByFilter(filter));
-    }
+//    @GetMapping("/series")
+//    public BaseResponse<?> getSeriesTopRated(@RequestParam("sort") String filter) {
+//        return new BaseResponse<>(contentService.findSeriesWithReviewsByFilter(filter));
+//    }
 
 
     // --------------- 테스트용 메서드 ----------------------
@@ -68,8 +67,12 @@ public class ContentController {
     // 자동 최신화 기능 테스트
     @GetMapping("/series/test")
     public BaseResponse<String> getNewSeries() {
-        contentService.updateLatestSeries();
-        return new BaseResponse<>("success");
+        return new BaseResponse<>(contentService.updateLatestSeries());
+    }
+    // 자동 최신화 기능 테스트
+    @GetMapping("/movies/test")
+    public BaseResponse<String> getNewMovies() {
+      return new BaseResponse<>(contentService.updateLatestMovies());
     }
 
 }

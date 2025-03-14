@@ -1,6 +1,7 @@
 package com.alom.reeltalkbe.content.dto;
 
 import com.alom.reeltalkbe.content.domain.Content;
+import com.alom.reeltalkbe.content.domain.ContentType;
 import com.alom.reeltalkbe.content.domain.Genre;
 import com.alom.reeltalkbe.content.domain.GenreListConverter;
 import com.alom.reeltalkbe.review.domain.Review;
@@ -35,9 +36,12 @@ public class MovieTabResponse {
 
     private LocalDate releaseDate;
 
+    private String originalTitle;
     private String title;
 
     private List<ReviewResponse> reviews;
+
+    private ContentType contentType;
 
     @Builder
     private MovieTabResponse(Content content, List<ReviewResponse> reviews) {
@@ -50,7 +54,9 @@ public class MovieTabResponse {
         rating = content.getRatingAverage();
         posterPath = content.getPosterPath();
         releaseDate = content.getReleaseDate();
-        title = content.getEnTitle();
+        originalTitle = content.getEnTitle();
+        title = content.getKorTitle();
+        contentType = content.getContentType();
         this.reviews = reviews;
     }
 
