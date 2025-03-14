@@ -219,32 +219,36 @@ public class ReviewService {
     //샘플
     @Transactional(readOnly = true)
     public List<ReviewListResponseDto> reviewSample() {
-        // 평점이 높은 상위 3개 콘텐츠 가져오기
-        List<Content> topContents = contentRepository.findTop3ByOrderByRatingAverageDesc();
+        // 특정 ID(238, 278, 13)의 콘텐츠 조회
+        Content content1 = contentRepository.findById(278L)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.CONTENT_NOT_FOUND));
+        Content content2 = contentRepository.findById(13L)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.CONTENT_NOT_FOUND));
+        Content content3 = contentRepository.findById(238L)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.CONTENT_NOT_FOUND));
 
-        //각 콘텐츠별로 최신 리뷰 10개씩 가져오기
-        return topContents.stream()
-                .map(content -> {
-                    // 최신 리뷰 10개 가져오기 (좋아요 순 정렬)
-                    List<ReviewResponseDto> reviews = reviewRepository
-                            .findTop10ByContentIdOrderByReviewLikesDesc(content.getId())
-                            .stream()
-                            .map(ReviewResponseDto::fromEntity)
-                            .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(0, 10); // 상위 10개 리뷰만 조회
 
-                    // DTO 변환
-                    return ReviewListResponseDto.builder()
-                            .contentId(content.getId())
-                            .title(content.getKorTitle())
-                            .ratingAverage(content.getRatingAverage())
-                            .result(reviews)
-                            .totalPages(1)
-                            .totalElements(reviews.size())
-                            .currentPage(1)
-                            .build();
-                })
-                .collect(Collectors.toList());
+        // 리뷰 가져오기 및 DTO 변환
+        Page<ReviewResponseDto> reviews1 = reviewRepository.findByContentId(content1.getId(), pageable)
+                .map(ReviewResponseDto::fromEntity);
+        Page<ReviewResponseDto> reviews2 = reviewRepository.findByContentId(content2.getId(), pageable)
+                .map(ReviewResponseDto::fromEntity);
+        Page<ReviewResponseDto> reviews3 = reviewRepository.findByContentId(content3.getId(), pageable)
+                .map(ReviewResponseDto::fromEntity);
+
+
+
+        // ReviewListResponseDto 리스트 생성
+        return List.of(
+                ReviewListResponseDto.fromEntity(content1, reviews1),
+
+                ReviewListResponseDto.fromEntity(content1, reviews2),
+
+                ReviewListResponseDto.fromEntity(content1, reviews3)
+        );
     }
+
 
     //리뷰 20개 뽑기(샘플)
     public List<ReviewResponseDto> randomReview(){
