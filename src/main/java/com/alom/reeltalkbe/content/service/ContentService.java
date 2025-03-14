@@ -73,7 +73,7 @@ public class ContentService {
                     contentRepository.findTop10ByContentTypeAndReleaseDateBetweenOrderByPopularityDesc(
                         ContentType.MOVIE, LocalDate.now().minusMonths(1), LocalDate.now().plusMonths(1));
             case "up-coming" ->             // 오늘 이후에 개봉할 영화를 개봉일자 오름차순으로 반환
-                    contentRepository.findTop10ByContentTypeReleaseDateAfterOrderByReleaseDateAsc(
+                    contentRepository.findTop10ByContentTypeAndReleaseDateAfterOrderByReleaseDateAsc(
                         ContentType.MOVIE, LocalDate.now());
             default ->                      // 분류기준 잘못되면 예외 처리
                     throw new BaseException(BaseResponseStatus.INVALID_QUERY_PARAMETER);
