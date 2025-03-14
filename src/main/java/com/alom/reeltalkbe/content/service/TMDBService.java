@@ -133,14 +133,20 @@ public class TMDBService {
     @Async
     public CompletableFuture<TMDBMovieDetailsRequest> fetchMovieDetailsFromTMDB(Long movieId) {
         String detailsUrl = "https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + TMDB_API_KEY + "&language=ko-KR";
-
+        String forOverview = "https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + TMDB_API_KEY;
         try {
-            TMDBMovieDetailsRequest details = restTemplate.getForObject(detailsUrl, TMDBMovieDetailsRequest.class);
-            return CompletableFuture.completedFuture(details);
-        } catch (RestClientException e) {
-            System.err.println("TMDB 영화 상세 정보 가져오기 실패: " + movieId + " - " + e.getMessage());
-        }
-        return CompletableFuture.completedFuture(null);
+              TMDBMovieDetailsRequest details = restTemplate.getForObject(detailsUrl, TMDBMovieDetailsRequest.class);
+              if (details != null && Objects.equals(details.getOverview(), "")) {
+                details.setOverview(
+                    Objects.requireNonNull(restTemplate.getForObject(forOverview, TMDBMovieDetailsRequest.class)).getOverview());
+              }
+
+              return CompletableFuture.completedFuture(details);
+              } catch (RestClientException e) {
+                  System.err.println("TMDB 영화 상세 정보 가져오기 실패: " + movieId + " - " + e.getMessage());
+              }
+
+              return CompletableFuture.completedFuture(null);
     }
 
 
