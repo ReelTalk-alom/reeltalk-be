@@ -17,6 +17,7 @@ public enum BaseResponseStatus {
     FAIL_TOKEN_AUTHORIZATION(false, HttpStatus.UNAUTHORIZED.value(), "토큰 인증에 실패하였습니다."),
     NO_TOKEN(false, HttpStatus.NO_CONTENT.value(), "토큰 값이 비어있습니다."),
     INVALID_MEMBER(false, HttpStatus.NOT_FOUND.value(), "유효하지 않은 회원입니다."),
+    USER_NOT_AUTHENTICATED(false, HttpStatus.UNAUTHORIZED.value(), "사용자가 인증되지 않았습니다."),
 
     // 회원 가입
     EXIST_EMAIL(false, HttpStatus.CONFLICT.value(), "이미 존재하는 이메일입니다."),
