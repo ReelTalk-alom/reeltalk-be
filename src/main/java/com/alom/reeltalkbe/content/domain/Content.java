@@ -90,8 +90,8 @@ public class Content extends BaseEntity {
     // test용
     public Content(TMDBSeriesDetailsRequest request) {
         this.id = request.getId();
-        this.enTitle = request.getOriginalName();
-        this.korTitle = request.getName();
+        this.korTitle = request.getTitle();
+        this.enTitle = request.getOriginalTitle();
         this.adult = request.isAdult();
         this.backdropPath = request.getBackdropPath();
         this.country = (request.getOriginCountry() != null && !request.getOriginCountry().isEmpty())

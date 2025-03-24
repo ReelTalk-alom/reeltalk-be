@@ -134,7 +134,7 @@ public class ContentService {
         }
 
         List<String> titleList = detailedRequests.stream()
-                .map(TMDBSeriesDetailsRequest::getOriginalName)
+                .map(TMDBSeriesDetailsRequest::getOriginalTitle)
                 .collect(Collectors.toList());
 
         List<LocalDate> dateList = detailedRequests.stream()
@@ -148,7 +148,7 @@ public class ContentService {
 
         List<Content> newSeriesList = detailedRequests.stream()
                 .filter(request -> !existingTitles.contains(
-                        request.getOriginalName() + Optional.ofNullable(request.getFirstAirDate()).map(Object::toString).orElse("")
+                        request.getOriginalTitle() + Optional.ofNullable(request.getFirstAirDate()).map(Object::toString).orElse("")
                 ))
                 .map(TMDBSeriesDetailsRequest::toEntity)
                 .collect(Collectors.toList());

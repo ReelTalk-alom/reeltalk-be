@@ -37,6 +37,7 @@ public class SeriesTabResponse {
     @JsonProperty("first_air_date")
     private LocalDate firstAirDate;
 
+    private String originalTitle;
     private String title;
 
     @JsonProperty("number_of_seasons")
@@ -58,7 +59,8 @@ public class SeriesTabResponse {
         this.rating = content.getRatingAverage();
         this.posterPath = content.getPosterPath();
         this.firstAirDate = content.getReleaseDate();  // 시리즈에서는 releaseDate가 firstAirDate로 매핑됨
-        this.title = content.getEnTitle();
+        this.title = content.getKorTitle();
+        this.originalTitle = content.getEnTitle();
         this.numberOfSeasons = content.getNumberOfSeasons();
         this.numberOfEpisodes = content.getNumberOfEpisodes();
         this.reviews = reviews;
