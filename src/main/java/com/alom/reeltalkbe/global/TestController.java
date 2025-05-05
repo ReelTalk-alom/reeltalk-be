@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
-@Tag(name = "개발자용 Test", description = "Test 관련 API")
+@Tag(name = "백엔드 개발자용 Test", description = "Test 관련 API")
 @RequiredArgsConstructor
 public class TestController {
 
