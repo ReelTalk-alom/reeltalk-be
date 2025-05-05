@@ -1,6 +1,7 @@
 package com.alom.reeltalkbe.common.response;
 
 
+import com.alom.reeltalkbe.common.exception.BaseResponseStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;

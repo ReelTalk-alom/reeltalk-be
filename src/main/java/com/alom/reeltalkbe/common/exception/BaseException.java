@@ -1,7 +1,6 @@
 package com.alom.reeltalkbe.common.exception;
 
 
-import com.alom.reeltalkbe.common.response.BaseResponseStatus;
 import lombok.Getter;
 import lombok.Setter;
 
