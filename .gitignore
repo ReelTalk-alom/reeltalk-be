@@ -38,3 +38,4 @@ out/
 
 # Private configuration file
 application-private.properties
+application.properties
