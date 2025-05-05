@@ -139,7 +139,7 @@ public class UserService {
 
             return imageUrl;
         } else {
-            throw new IllegalStateException("User not authenticated");
+            throw new BaseException(BaseResponseStatus.USER_NOT_AUTHENTICATED);
         }
     }
 
@@ -155,7 +155,7 @@ public class UserService {
             user.setImageUrl(null);
             userRepository.save(user);
         } else {
-            throw new IllegalStateException("User not authenticated");
+            throw new BaseException(BaseResponseStatus.USER_NOT_AUTHENTICATED);
         }
     }
 
@@ -169,7 +169,7 @@ public class UserService {
 
             return user.getImageUrl();
         } else {
-            throw new IllegalStateException("User not authenticated");
+            throw new BaseException(BaseResponseStatus.USER_NOT_AUTHENTICATED);
         }
     }
 
