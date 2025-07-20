@@ -34,10 +34,7 @@ public class MyPageController {
      *  다른 사용자의 마이페이지 조회
      */
     @GetMapping("/{userId}")
-    public BaseResponse<MyPageResponseDto> getUserPage(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                              @PathVariable Long userId) {
-        if(userDetails.getUserId().equals(userId)) ;
-        // todo: 자신의 마이페이지에는 어떤게 가능한지 생각해보기
+    public BaseResponse<MyPageResponseDto> getUserPage(@PathVariable Long userId) {
         MyPageResponseDto userPageData = userService.getMyPageInfo(userId);
         return new BaseResponse<>(userPageData);
     }
@@ -50,7 +47,7 @@ public class MyPageController {
                                              @RequestBody MyPageUpdateRequestDto requestDto) {
         Long userId = userDetails.getUserId();
         userService.updateMyPage(userId, requestDto);
-        return new BaseResponse<>("프로필이 성공적으로 변경되었습니다");
+        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
     }
 
   // 프로필 이미지 등록
