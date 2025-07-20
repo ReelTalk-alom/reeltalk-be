@@ -37,5 +37,5 @@ out/
 .vscode/
 
 # Private configuration file
-application-private.properties
-application.properties
+application-private.yml
+application.yml
