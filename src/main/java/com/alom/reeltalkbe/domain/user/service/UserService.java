@@ -16,6 +16,7 @@ import com.alom.reeltalkbe.domain.user.repository.RefreshRepository;
 import com.alom.reeltalkbe.domain.user.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,27 +29,15 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
     private final ImageUploadService imageUploadService;
     private final RefreshRepository refreshRepository;
     private final ReviewRepository reviewRepository; //추가1
     private final ReviewService reviewService;  // 추가2
-
-    @Autowired
-    public UserService(UserRepository userRepository,
-                       ImageUploadService imageUploadService,
-                       RefreshRepository refreshRepository,
-                       ReviewRepository reviewRepository, ReviewService reviewService) {
-        this.userRepository = userRepository;
-        this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
-        this.imageUploadService = imageUploadService;
-        this.refreshRepository = refreshRepository;
-        this.reviewRepository = reviewRepository; //추가
-        this.reviewService = reviewService;  // 추가2
-    }
 
     //회원가입 기능
     @Transactional
