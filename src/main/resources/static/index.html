@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OAuth2 로그인 테스트</title>
+  <style>
+    body { font-family: sans-serif; padding: 2em; }
+    .login-buttons a {
+      display: inline-block;
+      padding: 10px 15px;
+      margin: 5px;
+      border-radius: 5px;
+      text-decoration: none;
+      color: white;
+      font-weight: bold;
+    }
+    .google { background-color: #DB4437; }
+    .naver { background-color: #03C75A; }
+    #api-result {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background-color: #f4f4f4;
+      white-space: pre-wrap; /* JSON을 예쁘게 보여주기 위함 */
+    }
+  </style>
+</head>
+<body>
+<h1>소셜 로그인 테스트</h1>
+<div class="login-buttons">
+  <a href="http://localhost:8080/api/oauth2/authorization/google" class="google">Google로 로그인</a>
+  <a href="http://localhost:8080/api/oauth2/authorization/naver" class="naver">Naver로 로그인</a>
+</div>
+
+<hr>
+
+<h2>API 호출 테스트</h2>
+<p>로그인 성공 후 아래 버튼을 눌러 보호된 API를 호출하고 결과를 확인하세요.</p>
+<button id="call-api-btn">내 정보 가져오기</button>
+<h3>API 응답 결과:</h3>
+<pre id="api-result">여기에 결과가 표시됩니다.</pre>
+
+<script>
+  // 페이지 로드 시 URL에 'success' 파라미터가 있는지 확인하여 로그인 성공 메시지를 표시
+  window.onload = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('success')) {
+      alert("로그인에 성공했습니다!");
+      // 깔끔한 URL을 위해 파라미터 제거
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  };
+
+  document.getElementById('call-api-btn').addEventListener('click', function() {
+    const resultDiv = document.getElementById('api-result');
+    resultDiv.textContent = 'API 호출 중...';
+
+    // 백엔드의 보호된 API 엔드포인트
+    const apiUrl = 'http://localhost:8080/api/oauth/test';
+
+    // fetch API를 사용해 요청을 보냅니다.
+    // HttpOnly 쿠키는 브라우저가 자동으로 요청에 포함시켜주므로 별도 설정이 필요 없습니다.
+    // 'credentials: "include"' 옵션은 다른 도메인으로 요청 시 쿠키를 포함시키기 위해 필요할 수 있습니다.
+    fetch(apiUrl, {
+      method: 'GET',
+      credentials: 'include', // 동일 출처(Same-origin) 정책을 따르므로 기본값은 same-origin. 명시적으로 include 해주는 것이 안전.
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        // 401 Unauthorized, 403 Forbidden 등의 에러 처리
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      // 성공적으로 데이터를 받으면 JSON 형태로 예쁘게 출력
+      resultDiv.textContent = JSON.stringify(data, null, 2);
+    })
+    .catch(error => {
+      // 에러 발생 시 메시지 출력
+      resultDiv.textContent = 'API 호출 실패: ' + error.message;
+      console.error('Error fetching data:', error);
+    });
+  });
+</script>
+</body>
+</html>

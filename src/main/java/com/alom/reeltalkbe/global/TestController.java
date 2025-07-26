@@ -9,10 +9,12 @@ import com.alom.reeltalkbe.domain.content.service.ContentService;
 import com.alom.reeltalkbe.domain.review.dto.response.ReviewListResponseDto;
 import com.alom.reeltalkbe.domain.review.dto.response.ReviewResponseDto;
 import com.alom.reeltalkbe.domain.review.service.ReviewService;
+import com.alom.reeltalkbe.domain.user.dto.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -68,5 +70,10 @@ public class TestController {
   public BaseResponse<List<ReviewResponseDto>> getRandomReviews(){
     List<ReviewResponseDto> reviewResponseDtos = reviewService.randomReview();
     return new BaseResponse<>(reviewResponseDtos);
+  }
+  @GetMapping("oauth/test")
+  public BaseResponse<String> test(@AuthenticationPrincipal CustomUserDetails userDetails){
+    return new BaseResponse<>("success");
+
   }
 }
