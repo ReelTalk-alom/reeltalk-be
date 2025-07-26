@@ -1,0 +1,48 @@
+## main 브랜치의 pull_request 가 merge로 닫혔을때 실행
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+jobs:
+  deploy:
+    if: github.event. pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: JDK 21 설정
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Gradle 빌드
+        run: ./gradlew build
+
+      - name: JAR 파일 전송
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+
+          source: "build/libs/*.jar"
+          target: "~/"
+
+      - name: 원격 서버에서 JAR 실행
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          sync: false
+          request_pty: false
+          script: |
+            nohup java -jar ~/build/libs/week8-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 < /dev/null &
+            disown
+            
+            exit 0
