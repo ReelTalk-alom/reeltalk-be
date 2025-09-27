@@ -86,8 +86,8 @@ jobs:
               echo "실행 중인 프로세스가 없습니다."
             fi
             
-            echo "새 애플리케이션 시작 시도..."
-            nohup java -jar "$JAR_PATH" > "$LOG_FILE" 2>&1 &
+            echo "새 애플리케이션 시작 시도 (private 프로필 활성화)..."
+            nohup java -jar "$JAR_PATH" --spring.profiles.active=private > "$LOG_FILE" 2>&1 &
             NOHUP_CODE=$?
             echo "nohup 명령어 종료 코드: $NOHUP_CODE"
             
