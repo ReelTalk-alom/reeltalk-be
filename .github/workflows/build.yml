@@ -28,7 +28,7 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('/*.gradle*', '/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
 
@@ -38,16 +38,13 @@ jobs:
       - name: Gradle 빌드 (테스트 제외)
         run: ./gradlew build -x test
 
-      - name: 생성된 JAR 파일 이름 확인 (디버깅용)
-        run: ls -l build/libs
-
       - name: SCP를 사용하여 JAR 파일 전송
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }} # 보안을 위해 SSH 키 사용을 권장합니다.
-          source: "build/libs/reeltalkbe-0.0.1-SNAPSHOT.jar" # 정확한 파일명으로 수정
+          password: ${{ secrets.SERVER_PASSWORD }}
+          source: "build/libs/reeltalkbe-0.0.1-SNAPSHOT.jar"
           target: "~/app"
           strip_components: 2
 
@@ -56,19 +53,36 @@ jobs:
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }} # 보안을 위해 SSH 키 사용을 권장합니다.
+          password: ${{ secrets.SERVER_PASSWORD }}
           script: |
             JAR_FILE="reeltalkbe-0.0.1-SNAPSHOT.jar"
-            APP_DIR="~/app"
+            APP_DIR="$HOME/app" # ~ 대신 $HOME 사용
+            JAR_PATH="$APP_DIR/$JAR_FILE"
+            LOG_FILE="$APP_DIR/nohup.out"
             
-            # 기존에 실행 중인 Java 프로세스 종료
-            PID=$(pgrep -f $JAR_FILE)
+            echo "--- 배포 스크립트 시작 ---"
+            echo "서버의 Java 버전:"
+            java -version
+            
+            echo "$JAR_PATH 에서 JAR 파일을 확인합니다."
+            if [ ! -f "$JAR_PATH" ]; then
+              echo "오류: JAR 파일을 찾을 수 없습니다."
+              exit 1
+            fi
+            
+            echo "기존 프로세스를 찾습니다..."
+            PID=$(pgrep -f "$JAR_FILE")
             if [ -n "$PID" ]; then
               echo "기존 프로세스(PID: $PID)를 종료합니다."
               kill -15 $PID
               sleep 5
+            else
+              echo "실행 중인 프로세스가 없습니다."
             fi
             
-            # 새 JAR 파일 실행
-            echo "새 애플리케이션을 시작합니다."
-            nohup java -jar $APP_DIR/$JAR_FILE > $APP_DIR/nohup.out 2>&1 &
+            echo "새 애플리케이션을 시작합니다. 로그는 $LOG_FILE 에 저장됩니다."
+            nohup java -jar "$JAR_PATH" > "$LOG_FILE" 2>&1 &
+            
+            echo "--- 배포 스크립트 종료 ---"
+  `
+
