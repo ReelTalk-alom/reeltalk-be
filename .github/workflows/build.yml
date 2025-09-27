@@ -1,4 +1,5 @@
-## main 브랜치의 pull_request 가 merge로 닫혔을때 실행
+# .github/workflows/main.yml
+
 on:
   pull_request:
     types:
@@ -7,7 +8,7 @@ on:
       - main
 jobs:
   deploy:
-    if: github.event. pull_request.merged == true
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -20,9 +21,8 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: gradlew에 실행 권한 추가
+      - name: Gradle에 실행 권한 부여
         run: chmod +x ./gradlew
-
 
       - name: Gradle 빌드
         run: ./gradlew build
@@ -33,18 +33,24 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-
           source: "build/libs/*.jar"
-          target: "~/"
+          target: "~/" # app 디렉토리 없이 홈으로 바로 지정
 
-      - name: 원격 서버에서 JAR 실행
+      - name: 원격 서버에서 배포 스크립트 실행
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          sync: false
-          request_pty: false
           script: |
-            nohup java -jar ~/build/libs/reeltalkbe-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 < /dev/null &
-            disown
+            # 기존에 실행 중인 Java 프로세스 종료
+            PID=$(pgrep -f 'reeltalkbe-.*.jar')
+            if [ -n "$PID" ]; then
+              echo "기존 프로세스(PID: $PID)를 종료합니다."
+              kill -15 $PID
+              sleep 5
+            fi
+            
+            # 새 JAR 파일 실행 (홈 디렉토리 경로로 수정)
+            echo "새 애플리케이션을 시작합니다."
+            nohup java -jar ~/*.jar > ~/nohup.out 2>&1 &
