@@ -55,6 +55,8 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
+            set -x # 실행되는 모든 명령어를 로그에 출력합니다.
+            
             JAR_FILE="reeltalkbe-0.0.1-SNAPSHOT.jar"
             APP_DIR="$HOME/app"
             JAR_PATH="$APP_DIR/$JAR_FILE"
@@ -62,13 +64,11 @@ jobs:
             
             echo "--- 배포 스크립트 시작 ---"
             
-            echo "JAR 파일을 확인합니다: $JAR_PATH"
             if [ ! -f "$JAR_PATH" ]; then
               echo "오류: JAR 파일을 찾을 수 없습니다."
               exit 1
             fi
             
-            echo "기존 프로세스를 찾습니다..."
             PID=$(pgrep -f "$JAR_FILE")
             if [ -n "$PID" ]; then
               echo "기존 프로세스(PID: $PID)를 종료합니다."
@@ -78,7 +78,7 @@ jobs:
               echo "실행 중인 프로세스가 없습니다."
             fi
             
-            echo "새 애플리케이션을 시작합니다. 로그는 $LOG_FILE 에 저장됩니다."
+            echo "새 애플리케이션을 시작합니다."
             nohup java -jar "$JAR_PATH" > "$LOG_FILE" 2>&1 &
             
             echo "--- 배포 스크립트 종료 ---"
