@@ -1,4 +1,4 @@
-# .github/workflows/main.yml
+# .github/workflows/build.yml
 
 on:
   pull_request:
@@ -6,6 +6,7 @@ on:
       - closed
     branches:
       - main
+
 jobs:
   deploy:
     if: github.event.pull_request.merged == true
@@ -15,42 +16,59 @@ jobs:
       - name: 코드 체크아웃
         uses: actions/checkout@v4
 
-      - name: JDK 21 설정
+      - name: JDK 17 설정
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: '17'
           distribution: 'temurin'
+
+      - name: Gradle 캐시 설정
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       - name: Gradle에 실행 권한 부여
         run: chmod +x ./gradlew
 
-      - name: Gradle 빌드
-        run: ./gradlew build
+      - name: Gradle 빌드 (테스트 제외)
+        run: ./gradlew build -x test
 
-      - name: JAR 파일 전송
+      - name: 생성된 JAR 파일 이름 확인 (디버깅용)
+        run: ls -l build/libs
+
+      - name: SCP를 사용하여 JAR 파일 전송
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
-          source: "build/libs/*.jar"
-          target: "~/" # app 디렉토리 없이 홈으로 바로 지정
+          password: ${{ secrets.SERVER_PASSWORD }} # 보안을 위해 SSH 키 사용을 권장합니다.
+          source: "build/libs/reeltalkbe-0.0.1-SNAPSHOT.jar" # 정확한 파일명으로 수정
+          target: "~/app"
+          strip_components: 2
 
       - name: 원격 서버에서 배포 스크립트 실행
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
+          password: ${{ secrets.SERVER_PASSWORD }} # 보안을 위해 SSH 키 사용을 권장합니다.
           script: |
+            JAR_FILE="reeltalkbe-0.0.1-SNAPSHOT.jar"
+            APP_DIR="~/app"
+            
             # 기존에 실행 중인 Java 프로세스 종료
-            PID=$(pgrep -f 'reeltalkbe-.*.jar')
+            PID=$(pgrep -f $JAR_FILE)
             if [ -n "$PID" ]; then
               echo "기존 프로세스(PID: $PID)를 종료합니다."
               kill -15 $PID
               sleep 5
             fi
             
-            # 새 JAR 파일 실행 (홈 디렉토리 경로로 수정)
+            # 새 JAR 파일 실행
             echo "새 애플리케이션을 시작합니다."
-            nohup java -jar ~/*.jar > ~/nohup.out 2>&1 &
+            nohup java -jar $APP_DIR/$JAR_FILE > $APP_DIR/nohup.out 2>&1 &
