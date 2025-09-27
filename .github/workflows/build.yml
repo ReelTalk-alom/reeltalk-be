@@ -1,15 +1,13 @@
-name: Deploy on PR Merge to Main
-
+## main 브랜치의 pull_request 가 merge로 닫혔을때 실행
 on:
   pull_request:
     types:
       - closed
     branches:
       - main
-
 jobs:
   deploy:
-    if: github.event.pull_request.merged == true
+    if: github.event. pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -22,18 +20,8 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
       - name: Gradle 빌드
         run: ./gradlew build
-
-      - name: Find latest JAR file
-        id: find_jar
-        run: |
-          LATEST_JAR=$(ls -t build/libs/*.jar | head -1)
-          echo "LATEST_JAR=$LATEST_JAR" >> $GITHUB_OUTPUT
-          echo "찾은 JAR 파일: $LATEST_JAR"
 
       - name: JAR 파일 전송
         uses: appleboy/scp-action@v0.1.7
@@ -41,10 +29,11 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          source: ${{ steps.find_jar.outputs.LATEST_JAR }}
+
+          source: "build/libs/*.jar"
           target: "~/"
 
-      - name: 원격 서버에서 JAR 실행 (배포)
+      - name: 원격 서버에서 JAR 실행
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -53,31 +42,5 @@ jobs:
           sync: false
           request_pty: false
           script: |
-            JAR_FILENAME=$(basename "${{ steps.find_jar.outputs.LATEST_JAR }}")
-            DEPLOY_PATH="~/$JAR_FILENAME"
-
-            echo "배포될 JAR 파일 이름: $JAR_FILENAME"
-            echo "서버 배포 경로: $DEPLOY_PATH"
-
-            EXISTING_PID=$(ps -ef | grep "$JAR_FILENAME" | grep -v grep | awk '{print $2}')
-            if [ -n "$EXISTING_PID" ]; then
-              echo "기존 프로세스 (PID: $EXISTING_PID) 종료 중..."
-              kill -9 "$EXISTING_PID"
-              sleep 5
-            else
-              echo "실행 중인 기존 프로세스가 없습니다."
-            fi
-
-            echo "새로운 JAR 파일 ($JAR_FILENAME) 실행 중..."
-            nohup java -jar "$DEPLOY_PATH" > /dev/null 2>&1 < /dev/null &
+            nohup java -jar ~/build/libs/reeltalkbe-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 < /dev/null &
             disown
-
-            sleep 10
-            if ps -ef | grep "$JAR_FILENAME" | grep -v grep > /dev/null; then
-              echo "애플리케이션이 서버에서 성공적으로 시작되었습니다."
-            else
-              echo "애플리케이션 시작에 실패했습니다."
-              exit 1
-            fi
-
-            exit 0
