@@ -55,29 +55,44 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
-            set -x # 실행되는 모든 명령어를 로그에 출력합니다.
-
+            set -x
+            
             JAR_FILE="reeltalkbe-0.0.1-SNAPSHOT.jar"
             APP_DIR="$HOME/app"
             JAR_PATH="$APP_DIR/$JAR_FILE"
             LOG_FILE="$APP_DIR/nohup.out"
+            PGREP_PATTERN="java -jar $JAR_PATH"
 
+            echo "--- 디버깅 스크립트 시작 ---"
+            
             if [ ! -f "$JAR_PATH" ]; then
               echo "오류: JAR 파일을 찾을 수 없습니다."
               exit 1
             fi
             
-            # kill 명령어의 non-zero exit code로 인해 스크립트가 중단되는 것을 방지
-            set +e
-            PID=$(pgrep -f "$JAR_FILE")
+            set +e # kill 명령어 때문에 스크립트가 중단되지 않도록 설정
+            
+            PID=$(pgrep -f "$PGREP_PATTERN")
+            echo "pgrep으로 찾은 PID: '$PID'"
+
             if [ -n "$PID" ]; then
-              echo "기존 프로세스(PID: $PID)를 종료합니다."
+              echo "프로세스 종료 시도: $PID"
               kill -15 $PID
+              KILL_CODE=$?
+              echo "kill 명령어 종료 코드: $KILL_CODE"
               sleep 5
+              echo "sleep 완료."
+            else
+              echo "실행 중인 프로세스가 없습니다."
             fi
-            set -e
             
-            echo "새 애플리케이션을 시작합니다."
+            echo "새 애플리케이션 시작 시도..."
             nohup java -jar "$JAR_PATH" > "$LOG_FILE" 2>&1 &
+            NOHUP_CODE=$?
+            echo "nohup 명령어 종료 코드: $NOHUP_CODE"
             
-            echo "--- 배포 스크립트 종료 ---"
+            sleep 5
+            echo "애플리케이션 실행 확인:"
+            ps -f -u $USER | grep java
+            
+            echo "--- 디버깅 스크립트 종료 ---"
