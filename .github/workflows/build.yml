@@ -20,6 +20,10 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
+      - name: gradlew에 실행 권한 추가 
+        run: chmod +x ./gradlew
+
+
       - name: Gradle 빌드
         run: ./gradlew build
 
