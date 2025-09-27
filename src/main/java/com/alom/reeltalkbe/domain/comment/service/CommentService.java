@@ -44,17 +44,11 @@
 
         }
 
+        @Transactional
         public CommentResponseDTO add(CustomUserDetails userDetails, Long reviewId, CommentRequestDTO commentParamDTO){
-            if(userDetails == null){
-                throw new BaseException(BaseResponseStatus.FAIL_TOKEN_AUTHORIZATION);
-            }
+          User user = getUser(userDetails);
 
-            Long userId = userDetails.getUserId();
-
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
-
-            Review review = reviewRepository.findById(reviewId)
+          Review review = reviewRepository.findById(reviewId)
                     .orElseThrow(() -> new  BaseException(BaseResponseStatus.INVALID_REVIEW));
 
 
@@ -68,17 +62,13 @@
             return new CommentResponseDTO(commentRepository.save(comment));
         }
 
+
+
+      @Transactional
         public CommentResponseDTO update(CustomUserDetails userDetails, Long commentId, Long reviewId, CommentRequestDTO commentRequestDTO) {
-            if(userDetails == null){
-                throw new BaseException(BaseResponseStatus.FAIL_TOKEN_AUTHORIZATION);
-            }
+        User user = getUser(userDetails);
 
-            Long userId = userDetails.getUserId();
-
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new  BaseException(BaseResponseStatus.NON_EXIST_USER));
-
-            Comment comment = commentRepository.findById(commentId)
+        Comment comment = commentRepository.findById(commentId)
                     .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_COMMENT));
 
 
@@ -93,18 +83,12 @@
             return new CommentResponseDTO(commentRepository.save(comment));
 
         }
-
+        
+        @Transactional
         public void delete(CustomUserDetails userDetails, Long commentId, Long reviewId){
-            if(userDetails == null){
-                throw new BaseException(BaseResponseStatus.FAIL_TOKEN_AUTHORIZATION);
-            }
+          User user = getUser(userDetails);
 
-            Long userId = userDetails.getUserId();
-
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
-
-            Comment comment = commentRepository.findById(commentId)
+          Comment comment = commentRepository.findById(commentId)
                     .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_COMMENT));
 
             if (!comment.getUser().getId().equals(user.getId())) {
@@ -116,17 +100,12 @@
             commentRepository.deleteById(commentId);
         }
 
+        @Transactional
         public CommentResponseDTO updateLike(CustomUserDetails userDetails, Long commentId){
 
-            if(userDetails == null){
-                throw new BaseException(BaseResponseStatus.FAIL_TOKEN_AUTHORIZATION);
-            }
+          User user = getUser(userDetails);
 
-            Long userId = userDetails.getUserId();
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
-
-            Comment comment = commentRepository.findById(commentId)
+          Comment comment = commentRepository.findById(commentId)
                     .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_COMMENT));
 
             Optional<Like> existingLike = likeRepository.findByUserAndComment(user, comment);
@@ -156,4 +135,16 @@
             }
 
         }
+
+      private User getUser(CustomUserDetails userDetails) {
+        if(userDetails == null){
+          throw new BaseException(BaseResponseStatus.FAIL_TOKEN_AUTHORIZATION);
+        }
+
+        Long userId = userDetails.getUserId();
+
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
+        return user;
+      }
     }
