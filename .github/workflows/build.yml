@@ -61,8 +61,6 @@ jobs:
             LOG_FILE="$APP_DIR/nohup.out"
             
             echo "--- 배포 스크립트 시작 ---"
-            echo "서버의 Java 버전:"
-            java -version
             
             echo "JAR 파일을 확인합니다: $JAR_PATH"
             if [ ! -f "$JAR_PATH" ]; then
@@ -74,7 +72,7 @@ jobs:
             PID=$(pgrep -f "$JAR_FILE")
             if [ -n "$PID" ]; then
               echo "기존 프로세스(PID: $PID)를 종료합니다."
-              kill -15 $PID
+              kill -15 $PID || true
               sleep 5
             else
               echo "실행 중인 프로세스가 없습니다."
