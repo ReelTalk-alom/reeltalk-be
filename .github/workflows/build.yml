@@ -34,16 +34,21 @@ jobs:
       - name: Gradle에 실행 권한 부여
         run: chmod +x ./gradlew
 
+      # --- 중요: 여기서 application.yml 파일을 생성 ---
+      - name: application.yml 파일 생성
+        run: echo "${{ secrets.APP_PRIVATE_YML }}" > application.yml
+
       - name: Gradle 빌드 (테스트 제외)
         run: ./gradlew build -x test
 
-      - name: SCP를 사용하여 빌드 파일 전송
+      # --- 중요: JAR 파일과 설정 파일을 함께 전송 ---
+      - name: SCP를 사용하여 빌드 및 설정 파일 전송
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          source: "build/libs/*.jar"
+          source: "build/libs/*.jar,application.yml" # 두 파일을 모두 전송
           target: "~/app"
           strip_components: 2
 
@@ -57,7 +62,6 @@ jobs:
             APP_DIR="$HOME/app"
             JAR_FILE=$(ls -t $APP_DIR/*.jar | head -n 1)
             LOG_FILE="$APP_DIR/nohup.out"
-            YML_PATH="$APP_DIR/application.yml" # 파일 이름을 application.yml로 변경
 
             echo "기존 프로세스를 찾아서 종료합니다."
             PID=$(ps -ef | grep "$JAR_FILE" | grep -v grep | awk '{print $2}')
@@ -67,11 +71,7 @@ jobs:
               sleep 5
             fi
 
-            # --- 중요: 서버에 application.yml 파일을 생성 ---
-            echo "서버에 application.yml 파일을 생성합니다."
-            echo "${{ secrets.APP_PRIVATE_YML }}" > $YML_PATH
-
-            # --- 중요: 더 이상 private 프로필을 활성화하지 않음 ---
+            # --- 중요: 서버에서는 더 이상 파일을 생성하지 않음 ---
             echo "새 애플리케이션을 시작합니다: ${JAR_FILE}"
             nohup java -jar "$JAR_FILE" > "$LOG_FILE" 2>&1 &
             
