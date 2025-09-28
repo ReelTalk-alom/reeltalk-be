@@ -38,44 +38,42 @@ jobs:
       - name: Gradle 빌드 (테스트 제외)
         run: ./gradlew build -x test
 
-      - name: SCP를 사용하여 JAR 파일 전송
+      - name: application-private.yml 파일 생성
+        run: echo "${{ secrets.APP_PRIVATE_YML }}" > src/main/resources/application-private.yml
+
+      - name: SCP를 사용하여 빌드 파일 전송
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          source: "build/libs/reeltalkbe-0.0.1-SNAPSHOT.jar"
+          source: "build/libs/*.jar,src/main/resources/application-private.yml"
           target: "~/app"
           strip_components: 2
 
-      - name: 원격 서버에서 배포 스크립트 실행
+      - name: 기존 프로세스 종료 (오류 무시)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
-            set -x
-
+            pkill -f 'reeltalkbe-.*.jar' || true
+          
+      - name: 새 애플리케이션 배포 및 실행
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: |
             APP_DIR="$HOME/app"
-            JAR_FILE="reeltalkbe-0.0.1-SNAPSHOT.jar"
-            JAR_PATH="$APP_DIR/$JAR_FILE"
-            PRIVATE_YML_PATH="$APP_DIR/application-private.yml"
+            JAR_FILE=$(ls $APP_DIR/reeltalkbe-*.jar | head -n 1)
             LOG_FILE="$APP_DIR/nohup.out"
 
-            echo "application-private.yml 파일을 생성합니다."
-            echo "${{ secrets.APP_PRIVATE_YML }}" > $PRIVATE_YML_PATH
-
-            PID=$(pgrep -f "$JAR_FILE")
-            if [ -n "$PID" ]; then
-              echo "기존 프로세스(PID: $PID)를 종료합니다."
-              kill -15 $PID || true
-              sleep 5
-            fi
-
-            echo "새 애플리케이션을 시작합니다 (private 프로필 활성화)."
-            nohup java -jar "$JAR_PATH" --spring.profiles.active=private > "$LOG_FILE" 2>&1 &
-
+            echo "새 애플리케이션을 시작합니다."
+            nohup java -jar "$JAR_FILE" --spring.profiles.active=private > "$LOG_FILE" 2>&1 &
+            
             echo "배포 스크립트가 완료되었습니다. 10초 후 로그를 확인합니다."
             sleep 10
             cat $LOG_FILE
