@@ -51,17 +51,7 @@ jobs:
           target: "~/app"
           strip_components: 2
 
-      # --- 중요: 프로세스 종료 단계를 다시 분리 ---
-      - name: 기존 프로세스 종료 (오류 무시)
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
-          script: |
-            pkill -f 'reeltalkbe-.*.jar' || true
-          
-      - name: 새 애플리케이션 배포 및 실행
+      - name: 애플리케이션 배포 및 실행 (pkill 미사용)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -69,13 +59,26 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
             APP_DIR="$HOME/app"
-            JAR_FILE=$(ls -t $APP_DIR/reeltalkbe-*.jar | head -n 1)
+            JAR_NAME_PATTERN="reeltalkbe-.*.jar"
             LOG_FILE="$APP_DIR/nohup.out"
             PRIVATE_YML_PATH="$APP_DIR/application-private.yml"
+
+            # --- pkill 대신 수동으로 PID를 찾아 kill ---
+            echo "기존 프로세스를 찾습니다..."
+            PID=$(ps -ef | grep java | grep -v grep | awk '{print $2}')
+            
+            if [ -n "$PID" ]; then
+              echo "기존 프로세스(PID: $PID)를 종료합니다."
+              kill -9 $PID
+              sleep 5
+            else
+              echo "실행 중인 애플리케이션이 없습니다."
+            fi
 
             echo "서버에 application-private.yml 파일을 생성합니다."
             echo "${{ secrets.APP_PRIVATE_YML }}" > $PRIVATE_YML_PATH
 
+            JAR_FILE=$(ls -t $APP_DIR/reeltalkbe-*.jar | head -n 1)
             echo "새 애플리케이션을 시작합니다: ${JAR_FILE}"
             nohup java -jar "$JAR_FILE" --spring.profiles.active=private > "$LOG_FILE" 2>&1 &
             
