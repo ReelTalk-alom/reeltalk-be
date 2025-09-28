@@ -57,28 +57,22 @@ jobs:
           script: |
             set -x
 
-            # 설정 파일 및 변수 정의
             APP_DIR="$HOME/app"
             JAR_FILE="reeltalkbe-0.0.1-SNAPSHOT.jar"
             JAR_PATH="$APP_DIR/$JAR_FILE"
             PRIVATE_YML_PATH="$APP_DIR/application-private.yml"
             LOG_FILE="$APP_DIR/nohup.out"
 
-            # application-private.yml 파일 생성
             echo "application-private.yml 파일을 생성합니다."
             echo "${{ secrets.APP_PRIVATE_YML }}" > $PRIVATE_YML_PATH
 
-            # 기존 프로세스 종료
-            set +e
             PID=$(pgrep -f "$JAR_FILE")
             if [ -n "$PID" ]; then
               echo "기존 프로세스(PID: $PID)를 종료합니다."
-              kill -15 $PID
+              kill -15 $PID || true
               sleep 5
             fi
-            set -e
 
-            # 애플리케이션 시작
             echo "새 애플리케이션을 시작합니다 (private 프로필 활성화)."
             nohup java -jar "$JAR_PATH" --spring.profiles.active=private > "$LOG_FILE" 2>&1 &
 
