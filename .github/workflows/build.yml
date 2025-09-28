@@ -56,43 +56,32 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
             set -x
-            
-            JAR_FILE="reeltalkbe-0.0.1-SNAPSHOT.jar"
+
+            # 설정 파일 및 변수 정의
             APP_DIR="$HOME/app"
+            JAR_FILE="reeltalkbe-0.0.1-SNAPSHOT.jar"
             JAR_PATH="$APP_DIR/$JAR_FILE"
+            PRIVATE_YML_PATH="$APP_DIR/application-private.yml"
             LOG_FILE="$APP_DIR/nohup.out"
-            PGREP_PATTERN="java -jar $JAR_PATH"
 
-            echo "--- 디버깅 스크립트 시작 ---"
-            
-            if [ ! -f "$JAR_PATH" ]; then
-              echo "오류: JAR 파일을 찾을 수 없습니다."
-              exit 1
-            fi
-            
-            set +e # kill 명령어 때문에 스크립트가 중단되지 않도록 설정
-            
-            PID=$(pgrep -f "$PGREP_PATTERN")
-            echo "pgrep으로 찾은 PID: '$PID'"
+            # application-private.yml 파일 생성
+            echo "application-private.yml 파일을 생성합니다."
+            echo "${{ secrets.APP_PRIVATE_YML }}" > $PRIVATE_YML_PATH
 
+            # 기존 프로세스 종료
+            set +e
+            PID=$(pgrep -f "$JAR_FILE")
             if [ -n "$PID" ]; then
-              echo "프로세스 종료 시도: $PID"
+              echo "기존 프로세스(PID: $PID)를 종료합니다."
               kill -15 $PID
-              KILL_CODE=$?
-              echo "kill 명령어 종료 코드: $KILL_CODE"
               sleep 5
-              echo "sleep 완료."
-            else
-              echo "실행 중인 프로세스가 없습니다."
             fi
-            
-            echo "새 애플리케이션 시작 시도 (private 프로필 활성화)..."
+            set -e
+
+            # 애플리케이션 시작
+            echo "새 애플리케이션을 시작합니다 (private 프로필 활성화)."
             nohup java -jar "$JAR_PATH" --spring.profiles.active=private > "$LOG_FILE" 2>&1 &
-            NOHUP_CODE=$?
-            echo "nohup 명령어 종료 코드: $NOHUP_CODE"
-            
-            sleep 5
-            echo "애플리케이션 실행 확인:"
-            ps -f -u $USER | grep java
-            
-            echo "--- 디버깅 스크립트 종료 ---"
+
+            echo "배포 스크립트가 완료되었습니다. 10초 후 로그를 확인합니다."
+            sleep 10
+            cat $LOG_FILE
