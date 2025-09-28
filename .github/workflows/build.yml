@@ -34,7 +34,7 @@ jobs:
       - name: Gradle에 실행 권한 부여
         run: chmod +x ./gradlew
 
-      # --- 중요: 여기서 application.yml 파일을 생성 --- 
+      # --- 중요: 여기서 application.yml 파일을 생성 ---
       - name: application.yml 파일 생성
         run: echo "${{ secrets.APP_PRIVATE_YML }}" > application.yml
 
