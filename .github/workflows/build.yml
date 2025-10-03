@@ -39,7 +39,7 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
             # 2. application.yml 파일 생성
-            echo "${{ secrets.APP_PRIVATE_YML }}" > ~/application.yml
+            echo "${{ secrets.APP_PRIVATE_YML }}" | base64 --decode > ~/application.yml
 
             # 3. 기존에 실행 중인 reeltalkbe 프로세스 종료
             pkill -f reeltalkbe-*.jar || true
