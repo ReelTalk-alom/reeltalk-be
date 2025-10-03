@@ -1,5 +1,3 @@
-# .github/workflows/build.yml
-
 on:
   pull_request:
     types: [closed]
@@ -12,16 +10,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 코드 체크아웃
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: JDK 17 설정
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Gradle 캐시 설정
+      - name: Set up Gradle Cache
         uses: actions/cache@v4
         with:
           path: |
@@ -31,28 +29,33 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Gradle에 실행 권한 부여
+      - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      # --- 중요: 여기서 application.yml 파일을 생성 ---
-      - name: application.yml 파일 생성
-        run: echo "${{ secrets.APP_PRIVATE_YML }}" > application.yml
+      # --- [수정 1] application.yml 파일을 src/main/resources 경로에 생성 ---
+      # 이렇게 하면 빌드 시 JAR 파일 내부에 설정 파일이 포함됩니다.
+      - name: Create application.yml for build
+        run: |
+          mkdir -p src/main/resources
+          echo "${{ secrets.APP_PRIVATE_YML }}" > src/main/resources/application.yml
 
-      - name: Gradle 빌드 (테스트 제외)
+      - name: Build with Gradle (excluding tests)
         run: ./gradlew build -x test
 
-      # --- 중요: JAR 파일과 설정 파일을 함께 전송 ---
-      - name: SCP를 사용하여 빌드 및 설정 파일 전송
+      # --- [수정 2] JAR 파일만 서버로 전송 ---
+      # application.yml은 이미 JAR 안에 있으므로, JAR 파일만 전송하면 됩니다.
+      - name: Transfer JAR file via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          source: "build/libs/*.jar,application.yml" # 두 파일을 모두 전송
+          source: "build/libs/*.jar"
           target: "~/app"
           strip_components: 2
 
-      - name: 애플리케이션 배포 및 실행
+      # --- [수정 3] 배포 스크립트 개선 ---
+      - name: Deploy and run application
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -60,21 +63,26 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
             APP_DIR="$HOME/app"
-            JAR_FILE=$(ls -t $APP_DIR/*.jar | head -n 1)
+            # 와일드카드를 사용하여 정확한 JAR 파일 이름을 찾습니다.
+            JAR_FILE=$(find $APP_DIR -name "*.jar" | sort -r | head -n 1)
             LOG_FILE="$APP_DIR/nohup.out"
 
-            echo "기존 프로세스를 찾아서 종료합니다."
-            PID=$(ps -ef | grep "$JAR_FILE" | grep -v grep | awk '{print $2}')
+            echo "Target JAR file: ${JAR_FILE}"
+
+            echo "Finding and killing the old process..."
+            # pgrep을 사용하면 더 안정적으로 프로세스를 찾을 수 있습니다.
+            PID=$(pgrep -f "${JAR_FILE}")
             if [ -n "$PID" ]; then
-              echo "기존 프로세스(PID: $PID)를 종료합니다."
+              echo "Killing old process (PID: $PID)..."
               kill -9 $PID
               sleep 5
+            else
+              echo "No running process to kill."
             fi
 
-            # --- 중요: 서버에서는 더 이상 파일을 생성하지 않음 ---
-            echo "새 애플리케이션을 시작합니다: ${JAR_FILE}"
-            nohup java -jar "$JAR_FILE" > "$LOG_FILE" 2>&1 &
+            echo "Starting the new application..."
+            nohup java -jar "${JAR_FILE}" > "${LOG_FILE}" 2>&1 &
             
-            echo "배포 스크립트가 완료되었습니다. 10초 후 로그를 확인합니다."
+            echo "Deployment script finished. Checking logs in 10 seconds..."
             sleep 10
             cat $LOG_FILE
