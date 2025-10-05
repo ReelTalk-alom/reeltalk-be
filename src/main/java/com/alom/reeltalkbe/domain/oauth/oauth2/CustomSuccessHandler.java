@@ -1,9 +1,6 @@
 package com.alom.reeltalkbe.domain.oauth.oauth2;
 
-import com.alom.reeltalkbe.common.exception.BaseException;
-import com.alom.reeltalkbe.common.exception.BaseResponseStatus;
-import com.alom.reeltalkbe.common.response.BaseResponse;
-import com.alom.reeltalkbe.domain.oauth.dto.CustomOAuth2User;
+
 import com.alom.reeltalkbe.domain.user.domain.RefreshEntity;
 import com.alom.reeltalkbe.domain.user.dto.CustomUserDetails;
 import com.alom.reeltalkbe.domain.user.jwt.JwtUtil;
@@ -15,7 +12,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -25,7 +21,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -34,7 +29,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final JwtUtil jwtUtil;
     private final RefreshRepository refreshRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    @Value("${oauth2.success-redirect-url}")
+    @Value("${app.oauth2.success-redirect-url}")
     private String redirectUrl;
 
     @Override
